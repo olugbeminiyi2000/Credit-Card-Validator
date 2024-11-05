@@ -1,1 +1,50 @@
-Response 1 provides a more robust, detailed, and actionable review, making it better suited for improving code quality, security, and maintainability in a practical and implementable way. Response 2, though useful, lacks the depth and specificity necessary for a high-quality code review.
+In this step, once you have selected the better response, you will be rewriting the preferred response. ​​This applies even if the original response is good or acceptable, but could be improved.
+
+The only scenario where a rewrite would not be necessary is if one of the model responses is perfect, meeting all the requirements and specifications of the prompt/task.
+
+Specifications List:
+
+The re-written response should fully achieve the main goal of the prompt.
+The re-written response should address any secondary objectives implied by the goal or prompts.
+The re-written response should correct any and all errors.
+The re-written response should be coherent and logically connected to the prior conversation.
+The re-written response should fulfill all the dimensions for “No Issue” in the rating rubric, which are listed in order of importance in the rubric.
+The re-written response should follow the below formatting specifications.
+Formatting Specifications:
+
+Key terms should be highlighted in bold, whereas titles, articles, etc. are italicized.
+
+Remove pleasantries such as "Sure," "Certainly," "I can help with that," etc.
+
+Make responses more concise, remove all fluff and unnecessary phrases (i.e. “Welcome to the world of VS Code!”)
+
+Tone should be straightforward/professional.
+
+Test outputs include a comment with the expected response.
+
+Explanations should use bullet points.
+
+Rewritten response replace any paragraphs (especially those with at least 3 points) with bullet points instead
+All repetitive phrasing/wording must be removed.
+
+Answer the questions below
+Label your response according to the questions below.
+
+Are there any minor or major stylistic or presentational issues in the response you selected as the "better" one? *
+
+Your are REQUIRED to perform a rewrite for any stylistic or presentational issues!
+
+Make sure that the response meets all stylistic standards, including:
+
+- Language that is clear, concise, and free of unnecessary repetition.
+
+- Use of bullet points when there are three or more key points for easy readability, with paragraphs broken down logically.
+
+- Sufficient comments in the code to explain complex logic or non-obvious steps.
+
+- For trivial html/css code, the requirement for comments can be more lenient
+
+
+[YES] - I confirm that the "better" response meets all stylistic requirements
+[NO] - I will perform a rewrite and change the response to follow all stylistic and presentational requirements
+Save and Continue
