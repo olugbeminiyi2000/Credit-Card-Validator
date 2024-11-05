@@ -1,12 +1,13 @@
-I have written a Python application for a Word Scramble Game using the tkinter library. The game starts when the user clicks the 'Play' button, displays a scrambled version of a word, and has a countdown timer set for 2 minutes. The player types their answer into an input field and submits it, gaining 10 points for each correct answer. However, I need help identifying potential issues with the word scrambling logic, answer verification, timer mechanism, and overall game flow. Can you review my code to ensure it functions correctly and meets the project requirements? Additionally, I would appreciate any suggestions for improving user experience, code performance, or handling edge cases.
+I have written a Python application for a Word Scramble Game using the Tkinter library. The game starts when the user clicks the 'Play' button, displays a scrambled version of a word, and has a countdown timer set for 2 minutes. The player types their answer into an input field and submits it, gaining 10 points for each correct answer. However, I need help identifying potential issues with the word scrambling logic, answer verification, timer mechanism, and overall game flow. Can you review my code to ensure it functions correctly and meets the project requirements? Additionally, I would appreciate any suggestions for improving user experience, code performance, or handling edge cases. Below is the code for my game:.
 
-  import tkinter as tk
+```python
+import tkinter as tk
 import random
 from nltk.corpus import words
 from nltk import download
 from threading import Timer
 
-# Ensure nltk words corpus is downloaded
+
 download('words')
 english_words = set(words.words())
 
@@ -18,7 +19,7 @@ class WordScrambleGame:
         self.root.title("Word Scramble Game")
 
         self.score = 0
-        self.time_left = 120  # 2 minutes in seconds
+        self.time_left = 120  
         self.current_word = ""
         self.scrambled_word = ""
 
@@ -105,3 +106,4 @@ class WordScrambleGame:
 root = tk.Tk()
 game = WordScrambleGame(root)
 root.mainloop()
+```
