@@ -2,20 +2,23 @@ import tkinter as tk
 import random
 from nltk.corpus import words
 from nltk import download
-from threading import Timer
 
 download('words')
 english_words = set(words.words())
+
 
 class WordScrambleGame:
 
     def __init__(self, root):
         self.root = root
         self.root.title("Word Scramble Game")
+
         self.score = 0
         self.time_left = 120  
         self.current_word = ""
         self.scrambled_word = ""
+        self.after_id = None
+        self.game_in_progress = False
 
         self.timer_label = tk.Label(root,
                                     text="Time left: 2:00",
@@ -51,28 +54,22 @@ class WordScrambleGame:
                                      font=("Helvetica", 12))
         self.play_button.pack(pady=10)
 
-        self.quit_button = tk.Button(root,
-                                     text="Quit",
-                                     command=self.end_game,
-                                     font=("Helvetica", 12))
-
     def start_game(self):
-        self.play_button.pack_forget()
-        self.quit_button.pack(pady=10)
-        self.score = 0
-        self.time_left = 120
-        self.update_score()
-        self.pick_random_word()
-        self.countdown()
+        if not self.game_in_progress:
+            self.score = 0
+            self.time_left = 120
+            self.update_score()
+            self.pick_random_word()
+            self.countdown()
+            self.game_in_progress = True
+            self.submit_button.config(state="normal")
+            self.play_button.config(state="disabled")
 
     def pick_random_word(self):
         self.current_word = random.choice(
             [word for word in english_words if 4 <= len(word) <= 7])
         self.scrambled_word = ''.join(
             random.sample(self.current_word, len(self.current_word)))
-        while self.scrambled_word == self.current_word:
-            self.scrambled_word = ''.join(
-                random.sample(self.current_word, len(self.current_word)))
         self.word_label.config(text=self.scrambled_word)
         self.entry.delete(0, tk.END)
         self.feedback_label.config(text="")
@@ -82,22 +79,19 @@ class WordScrambleGame:
 
     def check_answer(self):
         answer = self.entry.get().strip().lower()
-        if answer and answer.isalpha():
-            if answer == self.current_word:
-                self.score += 10
-                self.update_score()
-                self.pick_random_word()
-            else:
-                self.feedback_label.config(text=f"Incorrect! Try again!")
+        if answer == self.current_word:
+            self.score += 10
+            self.update_score()
+            self.pick_random_word()
         else:
-            self.feedback_label.config(text="Please enter a valid word!")
+            self.feedback_label.config(text="Try again!")
 
     def countdown(self):
         if self.time_left > 0:
             mins, secs = divmod(self.time_left, 60)
             self.timer_label.config(text=f"Time left: {mins:02}:{secs:02}")
             self.time_left -= 1
-            self.root.after(1000, self.countdown)
+            self.after_id = self.root.after(1000, self.countdown)
         else:
             self.end_game()
 
@@ -106,10 +100,14 @@ class WordScrambleGame:
         self.feedback_label.config(text=f"Your final score: {self.score}")
         self.entry.delete(0, tk.END)
         self.submit_button.config(state="disabled")
-        self.quit_button.pack_forget()
-        self.play_button.pack(pady=10)
+        self.play_button.config(state="normal")
+        self.game_in_progress = False
+        if self.after_id is not None:
+            self.root.after_cancel(self.after_id)
+
 
 # Initialize Tkinter and create game instance
 root = tk.Tk()
 game = WordScrambleGame(root)
+game.submit_button.config(state="disabled")
 root.mainloop()
