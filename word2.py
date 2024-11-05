@@ -2,6 +2,8 @@ import tkinter as tk
 import random
 from nltk.corpus import words
 from nltk import download
+from threading import Timer
+
 
 download('words')
 english_words = set(words.words())
@@ -17,7 +19,6 @@ class WordScrambleGame:
         self.time_left = 120  
         self.current_word = ""
         self.scrambled_word = ""
-        self.after_id = None
         self.game_in_progress = False
 
         self.timer_label = tk.Label(root,
@@ -56,13 +57,12 @@ class WordScrambleGame:
 
     def start_game(self):
         if not self.game_in_progress:
+            self.game_in_progress = True
             self.score = 0
             self.time_left = 120
             self.update_score()
             self.pick_random_word()
             self.countdown()
-            self.game_in_progress = True
-            self.submit_button.config(state="normal")
             self.play_button.config(state="disabled")
 
     def pick_random_word(self):
@@ -91,23 +91,20 @@ class WordScrambleGame:
             mins, secs = divmod(self.time_left, 60)
             self.timer_label.config(text=f"Time left: {mins:02}:{secs:02}")
             self.time_left -= 1
-            self.after_id = self.root.after(1000, self.countdown)
+            self.root.after(1000, self.countdown)
         else:
             self.end_game()
 
     def end_game(self):
+        self.game_in_progress = False
         self.word_label.config(text="Game Over!")
         self.feedback_label.config(text=f"Your final score: {self.score}")
         self.entry.delete(0, tk.END)
         self.submit_button.config(state="disabled")
         self.play_button.config(state="normal")
-        self.game_in_progress = False
-        if self.after_id is not None:
-            self.root.after_cancel(self.after_id)
 
 
 # Initialize Tkinter and create game instance
 root = tk.Tk()
 game = WordScrambleGame(root)
-game.submit_button.config(state="disabled")
 root.mainloop()
