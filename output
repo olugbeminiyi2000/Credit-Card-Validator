@@ -521,3 +521,33 @@ emmanuel guesses "V"
 There is one V
 emmanuel wins! The phrase was THE MUPPETS GET THEIR OWN TV SHOW
 emmanuel won $2200
+
+output 2
+===============
+WHEEL OF PYTHON
+===============
+
+How many human players?1
+Enter the name for human player #1: 2
+How many computer players?1
+What difficulty for the computers? (1-10)4
+
+---------------
+
+Category: Place
+Phrase:   ___ ___ __ _______
+Guessed:  
+
+
+2 spins...
+$700!
+Traceback (most recent call last):
+  File "/home/runner/WOFGame/test2.py", line 264, in <module>
+    main()
+  File "/home/runner/WOFGame/test2.py", line 211, in main
+    move = requestPlayerMove(player, category, guessed)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/WOFGame/test2.py", line 142, in requestPlayerMove
+    move = player.getMove(category, obscurePhrase(phrase, guessed),
+                                                  ^^^^^^
+NameError: name 'phrase' is not defined
