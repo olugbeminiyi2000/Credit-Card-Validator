@@ -58,12 +58,11 @@ class WordScrambleGame:
         if not self.game_in_progress:
             self.score = 0
             self.time_left = 120
+            self.game_in_progress = True
+            self.play_button.config(state="disabled")
             self.update_score()
             self.pick_random_word()
             self.countdown()
-            self.game_in_progress = True
-            self.submit_button.config(state="normal")
-            self.play_button.config(state="disabled")
 
     def pick_random_word(self):
         self.current_word = random.choice(
@@ -107,5 +106,4 @@ class WordScrambleGame:
 # Initialize Tkinter and create game instance
 root = tk.Tk()
 game = WordScrambleGame(root)
-game.submit_button.config(state="disabled")
 root.mainloop()
