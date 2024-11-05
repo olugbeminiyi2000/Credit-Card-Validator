@@ -12,7 +12,6 @@ class WordScrambleGame:
     def __init__(self, root):
         self.root = root
         self.root.title("Word Scramble Game")
-
         self.score = 0
         self.time_left = 120  
         self.current_word = ""
@@ -52,14 +51,19 @@ class WordScrambleGame:
                                      font=("Helvetica", 12))
         self.play_button.pack(pady=10)
 
+        self.quit_button = tk.Button(root,
+                                     text="Quit",
+                                     command=self.end_game,
+                                     font=("Helvetica", 12))
+
     def start_game(self):
+        self.play_button.pack_forget()
+        self.quit_button.pack(pady=10)
         self.score = 0
         self.time_left = 120
         self.update_score()
         self.pick_random_word()
         self.countdown()
-        self.play_button.config(state="disabled")
-        self.submit_button.config(state="normal")
 
     def pick_random_word(self):
         self.current_word = random.choice(
@@ -78,14 +82,15 @@ class WordScrambleGame:
 
     def check_answer(self):
         answer = self.entry.get().strip().lower()
-        if not answer:
-            self.feedback_label.config(text="Please enter an answer!")
-        elif answer == self.current_word:
-            self.score += 10
-            self.update_score()
-            self.pick_random_word()
+        if answer and answer.isalpha():
+            if answer == self.current_word:
+                self.score += 10
+                self.update_score()
+                self.pick_random_word()
+            else:
+                self.feedback_label.config(text=f"Incorrect! Try again!")
         else:
-            self.feedback_label.config(text="Try again!")
+            self.feedback_label.config(text="Please enter a valid word!")
 
     def countdown(self):
         if self.time_left > 0:
@@ -101,8 +106,8 @@ class WordScrambleGame:
         self.feedback_label.config(text=f"Your final score: {self.score}")
         self.entry.delete(0, tk.END)
         self.submit_button.config(state="disabled")
-        self.play_button.config(state="normal")
-
+        self.quit_button.pack_forget()
+        self.play_button.pack(pady=10)
 
 # Initialize Tkinter and create game instance
 root = tk.Tk()
