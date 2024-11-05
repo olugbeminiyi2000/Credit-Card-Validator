@@ -1,7 +1,6 @@
 I need help debugging a Python codebase for a Wheel of Fortune game. The game features both human and computer players who take turns guessing letters or phrases to reveal a hidden phrase within a given category. Each player starts with $0 and can earn money and prizes by guessing correctly. The code includes various functionalities, such as spinning a wheel to determine prize amounts, managing player turns, and enforcing game rules like guessing vowels for a cost and handling bankruptcies. I need assistance identifying and fixing the issues in the code. Specifically, I want to ensure the game runs smoothly, all rules are correctly implemented, and any runtime errors are resolved. Below is my code:
 
-
-
+```python
 class WOFPlayer():
 
   def __init__(self, name):
@@ -269,3 +268,4 @@ if winner:
             print('    - {}'.format(prize))
 else:
     print('Nobody won. The phrase was {}'.format(phrase))
+```
