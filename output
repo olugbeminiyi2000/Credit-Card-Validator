@@ -48,3 +48,476 @@ Make sure that the response meets all stylistic standards, including:
 [YES] - I confirm that the "better" response meets all stylistic requirements
 [NO] - I will perform a rewrite and change the response to follow all stylistic and presentational requirements
 Save and Continue
+
+
+output
+===============
+WHEEL OF PYTHON
+===============
+
+How many human players?1
+Enter the name for human player #1emmanuel
+How many computer players?1
+What difficulty for the computers? (1-10)5
+
+---------------
+
+Category: Show Biz
+Phrase:   ___ _______ ___ _____ ___ __ ____
+Guessed:  
+
+
+emmanuel spins...
+$700!
+emmanuel ($0) 
+
+Category: Show Biz
+Phrase: ___ _______ ___ _____ ___ __ ____
+Guessed: 
+
+Guess a letter, phrase, or type 'exit' or 'pass':b
+emmanuel guesses "B"
+There is no B
+
+---------------
+
+Category: Show Biz
+Phrase:   ___ _______ ___ _____ ___ __ ____
+Guessed:  B
+
+
+Computer 1 spins...
+$700!
+Computer 1 ($0) 
+
+Category: Show Biz
+Phrase: ___ _______ ___ _____ ___ __ ____
+Guessed: B
+
+Computer 1 guesses "Z"
+There is no Z
+
+---------------
+
+Category: Show Biz
+Phrase:   ___ _______ ___ _____ ___ __ ____
+Guessed:  B, Z
+
+
+emmanuel spins...
+$800!
+emmanuel ($0) 
+
+Category: Show Biz
+Phrase: ___ _______ ___ _____ ___ __ ____
+Guessed: B, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':e
+Need $250 to guess a vowel. Try again.
+emmanuel ($0) 
+
+Category: Show Biz
+Phrase: ___ _______ ___ _____ ___ __ ____
+Guessed: B, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':h
+emmanuel guesses "H"
+There are 3 H's
+
+---------------
+
+Category: Show Biz
+Phrase:   _H_ _______ ___ _H___ ___ __ _H__
+Guessed:  B, H, Z
+
+
+emmanuel spins...
+$700!
+emmanuel ($2400) 
+
+Category: Show Biz
+Phrase: _H_ _______ ___ _H___ ___ __ _H__
+Guessed: B, H, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':e
+emmanuel guesses "E"
+There are 4 E's
+
+---------------
+
+Category: Show Biz
+Phrase:   _HE ____E__ _E_ _HE__ ___ __ _H__
+Guessed:  B, E, H, Z
+
+
+emmanuel spins...
+$700!
+emmanuel ($4950) 
+
+Category: Show Biz
+Phrase: _HE ____E__ _E_ _HE__ ___ __ _H__
+Guessed: B, E, H, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':A
+emmanuel guesses "A"
+There is no A
+
+---------------
+
+Category: Show Biz
+Phrase:   _HE ____E__ _E_ _HE__ ___ __ _H__
+Guessed:  A, B, E, H, Z
+
+
+Computer 1 spins...
+One Million!
+Computer 1 ($0) 
+
+Category: Show Biz
+Phrase: _HE ____E__ _E_ _HE__ ___ __ _H__
+Guessed: A, B, E, H, Z
+
+Computer 1 guesses "X"
+There is no X
+
+---------------
+
+Category: Show Biz
+Phrase:   _HE ____E__ _E_ _HE__ ___ __ _H__
+Guessed:  A, B, E, H, X, Z
+
+
+emmanuel spins...
+$600!
+emmanuel ($4700) 
+
+Category: Show Biz
+Phrase: _HE ____E__ _E_ _HE__ ___ __ _H__
+Guessed: A, B, E, H, X, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':l
+emmanuel guesses "L"
+There is no L
+
+---------------
+
+Category: Show Biz
+Phrase:   _HE ____E__ _E_ _HE__ ___ __ _H__
+Guessed:  A, B, E, H, L, X, Z
+
+
+Computer 1 spins...
+$650!
+Computer 1 ($0) 
+
+Category: Show Biz
+Phrase: _HE ____E__ _E_ _HE__ ___ __ _H__
+Guessed: A, B, E, H, L, X, Z
+
+Computer 1 guesses "Q"
+There is no Q
+
+---------------
+
+Category: Show Biz
+Phrase:   _HE ____E__ _E_ _HE__ ___ __ _H__
+Guessed:  A, B, E, H, L, Q, X, Z
+
+
+emmanuel spins...
+$2500!
+emmanuel ($4700) 
+
+Category: Show Biz
+Phrase: _HE ____E__ _E_ _HE__ ___ __ _H__
+Guessed: A, B, E, H, L, Q, X, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':n
+emmanuel guesses "N"
+There is one N
+
+---------------
+
+Category: Show Biz
+Phrase:   _HE ____E__ _E_ _HE__ __N __ _H__
+Guessed:  A, B, E, H, L, N, Q, X, Z
+
+
+emmanuel spins...
+$700!
+emmanuel ($7200) 
+
+Category: Show Biz
+Phrase: _HE ____E__ _E_ _HE__ __N __ _H__
+Guessed: A, B, E, H, L, N, Q, X, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':T
+emmanuel guesses "T"
+There are 5 T's
+
+---------------
+
+Category: Show Biz
+Phrase:   THE ____ET_ _ET THE__ __N T_ _H__
+Guessed:  A, B, E, H, L, N, Q, T, X, Z
+
+
+emmanuel spins...
+$700!
+emmanuel ($10700) 
+
+Category: Show Biz
+Phrase: THE ____ET_ _ET THE__ __N T_ _H__
+Guessed: A, B, E, H, L, N, Q, T, X, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':M
+emmanuel guesses "M"
+There is one M
+
+---------------
+
+Category: Show Biz
+Phrase:   THE M___ET_ _ET THE__ __N T_ _H__
+Guessed:  A, B, E, H, L, M, N, Q, T, X, Z
+
+
+emmanuel spins...
+Lose a turn!
+
+---------------
+
+Category: Show Biz
+Phrase:   THE M___ET_ _ET THE__ __N T_ _H__
+Guessed:  A, B, E, H, L, M, N, Q, T, X, Z
+
+
+Computer 1 spins...
+Bankrupt!
+
+---------------
+
+Category: Show Biz
+Phrase:   THE M___ET_ _ET THE__ __N T_ _H__
+Guessed:  A, B, E, H, L, M, N, Q, T, X, Z
+
+
+emmanuel spins...
+Lose a turn!
+
+---------------
+
+Category: Show Biz
+Phrase:   THE M___ET_ _ET THE__ __N T_ _H__
+Guessed:  A, B, E, H, L, M, N, Q, T, X, Z
+
+
+Computer 1 spins...
+$600!
+Computer 1 ($0) 
+
+Category: Show Biz
+Phrase: THE M___ET_ _ET THE__ __N T_ _H__
+Guessed: A, B, E, H, L, M, N, Q, T, X, Z
+
+Computer 1 guesses "J"
+There is no J
+
+---------------
+
+Category: Show Biz
+Phrase:   THE M___ET_ _ET THE__ __N T_ _H__
+Guessed:  A, B, E, H, J, L, M, N, Q, T, X, Z
+
+
+emmanuel spins...
+$900!
+emmanuel ($11400) 
+
+Category: Show Biz
+Phrase: THE M___ET_ _ET THE__ __N T_ _H__
+Guessed: A, B, E, H, J, L, M, N, Q, T, X, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':U
+emmanuel guesses "U"
+There is one U
+
+---------------
+
+Category: Show Biz
+Phrase:   THE MU__ET_ _ET THE__ __N T_ _H__
+Guessed:  A, B, E, H, J, L, M, N, Q, T, U, X, Z
+
+
+emmanuel spins...
+900!
+emmanuel ($12050) 
+
+Category: Show Biz
+Phrase: THE MU__ET_ _ET THE__ __N T_ _H__
+Guessed: A, B, E, H, J, L, M, N, Q, T, U, X, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':p
+emmanuel guesses "P"
+There are 2 P's
+
+---------------
+
+Category: Show Biz
+Phrase:   THE MUPPET_ _ET THE__ __N T_ _H__
+Guessed:  A, B, E, H, J, L, M, N, P, Q, T, U, X, Z
+
+
+emmanuel spins...
+$800!
+emmanuel ($13850) 
+
+Category: Show Biz
+Phrase: THE MUPPET_ _ET THE__ __N T_ _H__
+Guessed: A, B, E, H, J, L, M, N, P, Q, T, U, X, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':s
+emmanuel guesses "S"
+There are 2 S's
+
+---------------
+
+Category: Show Biz
+Phrase:   THE MUPPETS _ET THE__ __N T_ SH__
+Guessed:  A, B, E, H, J, L, M, N, P, Q, S, T, U, X, Z
+
+
+emmanuel spins...
+900!
+emmanuel ($15450) 
+
+Category: Show Biz
+Phrase: THE MUPPETS _ET THE__ __N T_ SH__
+Guessed: A, B, E, H, J, L, M, N, P, Q, S, T, U, X, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':g
+emmanuel guesses "G"
+There is one G
+
+---------------
+
+Category: Show Biz
+Phrase:   THE MUPPETS GET THE__ __N T_ SH__
+Guessed:  A, B, E, G, H, J, L, M, N, P, Q, S, T, U, X, Z
+
+
+emmanuel spins...
+900!
+emmanuel ($16350) 
+
+Category: Show Biz
+Phrase: THE MUPPETS GET THE__ __N T_ SH__
+Guessed: A, B, E, G, H, J, L, M, N, P, Q, S, T, U, X, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':i
+emmanuel guesses "I"
+There is one I
+
+---------------
+
+Category: Show Biz
+Phrase:   THE MUPPETS GET THEI_ __N T_ SH__
+Guessed:  A, B, E, G, H, I, J, L, M, N, P, Q, S, T, U, X, Z
+
+
+emmanuel spins...
+$800!
+emmanuel ($17000) 
+
+Category: Show Biz
+Phrase: THE MUPPETS GET THEI_ __N T_ SH__
+Guessed: A, B, E, G, H, I, J, L, M, N, P, Q, S, T, U, X, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':o
+emmanuel guesses "O"
+There are 2 O's
+
+---------------
+
+Category: Show Biz
+Phrase:   THE MUPPETS GET THEI_ O_N T_ SHO_
+Guessed:  A, B, E, G, H, I, J, L, M, N, O, P, Q, S, T, U, X, Z
+
+
+emmanuel spins...
+Bankrupt!
+
+---------------
+
+Category: Show Biz
+Phrase:   THE MUPPETS GET THEI_ O_N T_ SHO_
+Guessed:  A, B, E, G, H, I, J, L, M, N, O, P, Q, S, T, U, X, Z
+
+
+Computer 1 spins...
+900!
+Computer 1 ($0) 
+
+Category: Show Biz
+Phrase: THE MUPPETS GET THEI_ O_N T_ SHO_
+Guessed: A, B, E, G, H, I, J, L, M, N, O, P, Q, S, T, U, X, Z
+
+Computer 1 guesses "R"
+There is one R
+
+---------------
+
+Category: Show Biz
+Phrase:   THE MUPPETS GET THEIR O_N T_ SHO_
+Guessed:  A, B, E, G, H, I, J, L, M, N, O, P, Q, R, S, T, U, X, Z
+
+
+Computer 1 spins...
+$900!
+Computer 1 ($900) 
+
+Category: Show Biz
+Phrase: THE MUPPETS GET THEIR O_N T_ SHO_
+Guessed: A, B, E, G, H, I, J, L, M, N, O, P, Q, R, S, T, U, X, Z
+
+Computer 1 guesses "K"
+There is no K
+
+---------------
+
+Category: Show Biz
+Phrase:   THE MUPPETS GET THEIR O_N T_ SHO_
+Guessed:  A, B, E, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, X, Z
+
+
+emmanuel spins...
+$700!
+emmanuel ($0) 
+
+Category: Show Biz
+Phrase: THE MUPPETS GET THEIR O_N T_ SHO_
+Guessed: A, B, E, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, X, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':w
+emmanuel guesses "W"
+There are 2 W's
+
+---------------
+
+Category: Show Biz
+Phrase:   THE MUPPETS GET THEIR OWN T_ SHOW
+Guessed:  A, B, E, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, W, X, Z
+
+
+emmanuel spins...
+$800!
+emmanuel ($1400) 
+
+Category: Show Biz
+Phrase: THE MUPPETS GET THEIR OWN T_ SHOW
+Guessed: A, B, E, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, W, X, Z
+
+Guess a letter, phrase, or type 'exit' or 'pass':v
+emmanuel guesses "V"
+There is one V
+emmanuel wins! The phrase was THE MUPPETS GET THEIR OWN TV SHOW
+emmanuel won $2200
