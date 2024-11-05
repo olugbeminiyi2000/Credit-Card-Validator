@@ -1,4 +1,3 @@
-import sys
 import json
 import random
 import time
@@ -23,33 +22,33 @@ class WOFPlayer:
         self.prizes.append(prize)
 
     def __str__(self):
-        return "{} (${})".format(self.name, self.prizeMoney)
+        return f"{self.name} (${self.prizeMoney})"
 
 
 class WOFHumanPlayer(WOFPlayer):
     def __init__(self, name):
-        WOFPlayer.__init__(self, name)
+        super().__init__(name)
 
     def getMove(self, category, obscuredPhrase, guessed):
         print(self.__str__(), '\n')
-        print("Category: {}\nPhrase: {}\nGuessed: {}\n".format(category, obscuredPhrase, ", ".join(sorted(guessed))))
-        move = input("Guess a letter, phrase, or type 'exit' or 'pass':")
-        return move
+        print(f"Category: {category}\nPhrase: {obscuredPhrase}\nGuessed: {', '.join(sorted(guessed))}\n")
+        while True:
+            move = input("Guess a letter, phrase, or type 'exit' or 'pass': ").upper()
+            if move in ['EXIT', 'PASS'] or len(move) == 1 or len(move) > 1:
+                return move
+            else:
+                print("Invalid input. Please try again.")
 
 
 class WOFComputerPlayer(WOFPlayer):
     SORTED_FREQUENCIES = 'ZQXJKVBPYGFWMUCLDRHSNIOATE'
 
     def __init__(self, name, difficulty):
-        WOFPlayer.__init__(self, name)
+        super().__init__(name)
         self.difficulty = difficulty
 
     def smartCoinFlip(self):
-        rand_number = random.randint(1, 10)
-        if rand_number > self.difficulty:
-            return False
-        elif rand_number <= self.difficulty:
-            return True
+        return random.randint(1, 10) <= self.difficulty
 
     def getPossibleLetters(self, guessed):
         possibleLetters = []
@@ -65,190 +64,184 @@ class WOFComputerPlayer(WOFPlayer):
 
     def getMove(self, category, obscuredPhrase, guessed):
         print(self.__str__(), '\n')
-        print("Category: {}\nPhrase: {}\nGuessed: {}\n".format(category, obscuredPhrase, ", ".join(sorted(guessed))))
+        print(f"Category: {category}\nPhrase: {obscuredPhrase}\nGuessed: {', '.join(sorted(guessed))}\n")
         possibleLetters = self.getPossibleLetters(guessed)
-        move = self.smartCoinFlip()
-        if possibleLetters == []:
-            return 'pass'
-        if move:
-            for letter in possibleLetters:
-                if letter in self.SORTED_FREQUENCIES:
-                    return letter
+        if possibleLetters:
+            if self.smartCoinFlip():
+                return min(possibleLetters, key=lambda x: self.SORTED_FREQUENCIES.index(x))
+            else:
+                return random.choice(possibleLetters)
         else:
-            return random.choice(possibleLetters)
-
-    def __str__(self):
-        return "{} (${}) - Difficulty: {}".format(self.name, self.prizeMoney, self.difficulty)
+            return 'PASS'
 
 
 def getNumberBetween(prompt, min, max):
     while True:
         try:
-            n = int(input(prompt))
-            if n < min:
-                print('Must be at least {}'.format(min))
-            elif n > max:
-                print('Must be at most {}'.format(max))
+            num = int(input(prompt))
+            if min <= num <= max:
+                return num
             else:
-                return n
+                print(f"Please enter a number between {min} and {max}.")
         except ValueError:
-            print('Invalid input. Please enter a number.')
+            print("Invalid input. Please enter a number.")
 
 
 def spinWheel():
-    with open("wheel.json", 'r') as f:
-        wheel = json.loads(f.read())
-        return random.choice(wheel)
+    try:
+        with open("wheel.json", 'r') as f:
+            wheel = json.loads(f.read())
+            return random.choice(wheel)
+    except (FileNotFoundError, json.JSONDecodeError):
+        print("Error loading wheel.json. Please check the file.")
+        return None
 
 
 def getRandomCategoryAndPhrase():
-    with open("phrases.json", 'r') as f:
-        phrases = json.loads(f.read())
-        category = random.choice(list(phrases.keys()))
-        phrase = random.choice(phrases[category])
-        return (category, phrase.upper())
+    try:
+        with open("phrases.json", 'r') as f:
+            phrases = json.loads(f.read())
+            category = random.choice(list(phrases.keys()))
+            phrase = random.choice(phrases[category])
+            return category, phrase.upper()
+    except (FileNotFoundError, json.JSONDecodeError):
+        print("Error loading phrases.json. Please check the file.")
+        return None, None
 
 
 def obscurePhrase(phrase, guessed):
     obscured = ''
-    for letter in phrase:
-        if letter in LETTERS and letter not in guessed:
+    for char in phrase:
+        if char in LETTERS and char not in guessed:
             obscured += '_'
         else:
-            obscured += letter
+            obscured += char
     return obscured
 
 
 def showBoard(category, obscuredPhrase, guessed):
-    return """
-Category: {}
-Phrase:   {}
-Guessed:  {}""".format(category, obscuredPhrase, ', '.join(sorted(guessed)))
+    return f"""
+Category: {category}
+Phrase:   {obscuredPhrase}
+Guessed:  {', '.join(sorted(guessed))}
+"""
 
 
 def requestPlayerMove(player, category, guessed):
     while True:
         time.sleep(0.1)
         move = player.getMove(category, obscurePhrase(phrase, guessed), guessed)
-        move = move.upper()
-        if move == 'EXIT' or move == 'PASS':
+        if move in ['EXIT', 'PASS']:
             return move
         elif len(move) == 1:
-            if move not in LETTERS:
-                print('Guesses should be letters. Try again.')
-                continue
-            elif move in guessed:
-                print('{} has already been guessed. Try again.'.format(move))
-                continue
-            elif move in VOWELS and player.prizeMoney < VOWEL_COST:
-                print('Need ${} to guess a vowel. Try again.'.format(VOWEL_COST))
-                continue
-            else:
-                return move
-        else:
-            return move
-
-
-print('='*15)
-print('WHEEL OF PYTHON')
-print('='*15)
-print('')
-
-num_human = getNumberBetween('How many human players?', 0, 10)
-
-human_players = [WOFHumanPlayer(input('Enter the name for human player #{}'.format(i+1))) for i in range(num_human)]
-
-num_computer = getNumberBetween('How many computer players?', 0, 10)
-
-if num_computer >= 1:
-    difficulty = getNumberBetween('What difficulty for the computers? (1-10)', 1, 10)
-
-computer_players = [WOFComputerPlayer('Computer {}'.format(i+1), difficulty) for i in range(num_computer)]
-
-players = human_players + computer_players
-
-if len(players) == 0:
-    print('We need players to play!')
-    raise Exception('Not enough players')
-
-category, phrase = getRandomCategoryAndPhrase()
-guessed = []
-
-playerIndex = 0
-
-winner = False
-
-while True:
-    player = players[playerIndex]
-    wheelPrize = spinWheel()
-
-    print('')
-    print('-'*15)
-    print(showBoard(category, obscurePhrase(phrase, guessed), guessed))
-    print('')
-    print('{} spins...'.format(player.name))
-    time.sleep(2)
-    print('{}!'.format(wheelPrize['text']))
-    time.sleep(1)
-
-    if wheelPrize['type'] == 'bankrupt':
-        player.goBankrupt()
-    elif wheelPrize['type'] == 'loseturn':
-        pass
-    elif wheelPrize['type'] == 'cash':
-        move = requestPlayerMove(player, category, guessed)
-        if move == 'EXIT':
-            print('Until next time!')
-            break
-        elif move == 'PASS':
-            print('{} passes'.format(player.name))
-        elif len(move) == 1:
-            guessed.append(move)
-
-            print('{} guesses "{}"'.format(player.name, move))
-
-            if move in VOWELS:
-                player.prizeMoney -= VOWEL_COST
-
-            count = phrase.count(move)
-            if count > 0:
-                if count == 1:
-                    print("There is one {}".format(move))
+            if move in LETTERS and move not in guessed:
+                if move in VOWELS and player.prizeMoney < VOWEL_COST:
+                    print(f"Need ${VOWEL_COST} to guess a vowel. Try again.")
                 else:
-                    print("There are {} {}'s".format(count, move))
-
-                player.addMoney(count * wheelPrize['value'])
-                if wheelPrize['prize']:
-                    player.addPrize(wheelPrize['prize'])
-
-                if obscurePhrase(phrase, guessed) == phrase:
-                    winner = player
-                    break
-
-                continue
-
-            elif count == 0:
-                print("There is no {}".format(move))
-        else:
-            if move == phrase:
-                winner = player
-
-                player.addMoney(wheelPrize['value'])
-                if wheelPrize['prize']:
-                    player.addPrize(wheelPrize['prize'])
-
-                break
+                    return move
             else:
-                print('{} was not the phrase'.format(move))
+                print("Invalid guess. Please try again.")
+        else:
+            return move
 
-    playerIndex = (playerIndex + 1) % len(players)
 
-if winner:
-    print('{} wins! The phrase was {}'.format(winner.name, phrase))
-    print('{} won ${}'.format(winner.name, winner.prizeMoney))
-    if len(winner.prizes) > 0:
-        print('{} also won:'.format(winner.name))
-        for prize in winner.prizes:
-            print('    - {}'.format(prize))
-else:
-    print('Nobody won. The phrase was {}'.format(phrase))
+def main():
+    print('='*15)
+    print('WHEEL OF PYTHON')
+    print('='*15)
+    print('')
+
+    numHuman = getNumberBetween('How many human players?', 0, 10)
+    humanPlayers = [WOFHumanPlayer(input(f'Enter the name for human player #{i+1}: ')) for i in range(numHuman)]
+
+    numComputer = getNumberBetween('How many computer players?', 0, 10)
+    if numComputer:
+        difficulty = getNumberBetween('What difficulty for the computers? (1-10)', 1, 10)
+    computerPlayers = [WOFComputerPlayer(f'Computer {i+1}', difficulty) for i in range(numComputer)]
+
+    players = humanPlayers + computerPlayers
+
+    if not players:
+        print('We need players to play!')
+        return
+
+    category, phrase = getRandomCategoryAndPhrase()
+    if not phrase:
+        return
+
+    guessed = []
+    playerIndex = 0
+    winner = False
+
+    while True:
+        player = players[playerIndex]
+        wheelPrize = spinWheel()
+        if not wheelPrize:
+            return
+
+        print('')
+        print('-'*15)
+        print(showBoard(category, obscurePhrase(phrase, guessed), guessed))
+        print('')
+        print(f'{player.name} spins...')
+        time.sleep(2)
+        print(f'{wheelPrize["text"]}!')
+        time.sleep(1)
+
+        if wheelPrize['type'] == 'bankrupt':
+            player.goBankrupt()
+        elif wheelPrize['type'] == 'cash':
+            move = requestPlayerMove(player, category, guessed)
+            if move == 'EXIT':
+                print('Until next time!')
+                break
+            elif move == 'PASS':
+                print(f'{player.name} passes')
+            elif len(move) == 1:
+                guessed.append(move)
+                print(f'{player.name} guesses "{move}"')
+
+                if move in VOWELS:
+                    player.prizeMoney -= VOWEL_COST
+
+                count = phrase.count(move)
+                if count > 0:
+                    if count == 1:
+                        print(f"There is one {move}")
+                    else:
+                        print(f"There are {count} {move}'s")
+
+                    player.addMoney(count * wheelPrize['value'])
+                    if wheelPrize['prize']:
+                        player.addPrize(wheelPrize['prize'])
+
+                    if obscurePhrase(phrase, guessed) == phrase:
+                        winner = player
+                        break
+                else:
+                    print(f"There is no {move}")
+            else:
+                if move == phrase:
+                    winner = player
+                    player.addMoney(wheelPrize['value'])
+                    if wheelPrize['prize']:
+                        player.addPrize(wheelPrize['prize'])
+                    break
+                else:
+                    print(f'{move} was not the phrase')
+
+        playerIndex = (playerIndex + 1) % len(players)
+
+    if winner:
+        print(f'{winner.name} wins! The phrase was {phrase}')
+        print(f'{winner.name} won ${winner.prizeMoney}')
+        if winner.prizes:
+            print(f'{winner.name} also won:')
+            for prize in winner.prizes:
+                print(f'    - {prize}')
+    else:
+        print(f'Nobody won. The phrase was {phrase}')
+
+
+if __name__ == "__main__":
+    main()
