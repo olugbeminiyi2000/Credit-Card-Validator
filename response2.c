@@ -1,23 +1,49 @@
-Grading for Response 2
-Instruction Following: 1. No Issue
+import tkinter as tk
+import random
 
-Response 2 adheres closely to the prompt's requirements by thoroughly reviewing the function names for clarity and consistency, and assessing the code's quality, security, and maintainability. It systematically addresses each aspect outlined in the prompt without deviation from the topic.
+class SlidingPuzzle:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Sliding Puzzle")
+        self.tiles = [[str(i + j * 3 + 1) for i in range(3)] for j in range(3)]
+        self.tiles[2][2] = ""
+        self.buttons = [[None] * 3 for _ in range(3)]
+        self.empty_row = 2
+        self.empty_col = 2
+        self.create_ui()
 
-Accuracy: 1. No Issue
+    def create_ui(self):
+        for i in range(3):
+            for j in range(3):
+                self.buttons[i][j] = tk.Button(self.master, text=self.tiles[i][j], font=("Helvetica", 32), width=4, height=2, command=lambda r=i, c=j: self.move_tile(r, c))
+                self.buttons[i][j].grid(row=i, column=j)
+        tk.Button(self.master, text="Shuffle", font=("Helvetica", 16), command=self.shuffle).grid(row=3, columnspan=3)
 
-The analysis of the provided code is accurate, identifying relevant areas for improvement, including magic numbers, duplicate code, input validation, and error handling. The suggestions made are practical and relevant, and the proposed code modification is executable and aligns with best practices.
+    def shuffle(self):
+        for _ in range(100):
+            directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+            dr, dc = random.choice(directions)
+            new_row, new_col = self.empty_row + dr, self.empty_col + dc
+            if 0 <= new_row < 3 and 0 <= new_col < 3:
+                self.tiles[self.empty_row][self.empty_col], self.tiles[new_row][new_col] = self.tiles[new_row][new_col], self.tiles[self.empty_row][self.empty_col]
+                self.buttons[self.empty_row][self.empty_col]['text'] = self.tiles[self.empty_row][self.empty_col]
+                self.buttons[new_row][new_col]['text'] = self.tiles[new_row][new_col]
+                self.empty_row, self.empty_col = new_row, new_col
 
-Optimality and Efficiency: 2. Minor Issue
+    def move_tile(self, row, col):
+        if abs(row - self.empty_row) + abs(col - self.empty_col) == 1:
+            self.tiles[self.empty_row][self.empty_col], self.tiles[row][col] = self.tiles[row][col], self.tiles[self.empty_row][self.empty_col]
+            self.buttons[self.empty_row][self.empty_col]['text'] = self.tiles[self.empty_row][self.empty_col]
+            self.buttons[row][col]['text'] = self.tiles[row][col]
+            self.empty_row, self.empty_col = row, col
+            self.check_win()
 
-While the response effectively identifies issues related to redundancy and provides valid recommendations (like refactoring duplicate code and using constants), it could have further elaborated on specific strategies for improving performance or optimizing the structure of the code. For example, it could have suggested more optimal ways to handle input validation or the organization of functions.
+    def check_win(self):
+        win_condition = [[str(i + j * 3 + 1) for i in range(3)] for j in range(3)]
+        win_condition[2][2] = ""
+        if self.tiles == win_condition:
+            tk.Label(self.master, text="Congratulations!!", font=("Helvetica", 16)).grid(row=4, columnspan=3)
 
-Presentation: 2. Minor Issue
-
-The response is generally clear and well-organized, using headings to separate different sections effectively. However, some sections could benefit from a more concise presentation. The recommendations could be more streamlined to enhance clarity, and while the code snippet provided is relevant, a brief explanation of how it addresses the identified issues would improve understanding.
-
-Up-to-Date: 1. Up-To-Date
-
-The code provided in the response uses maintained and executable C programming conventions. There are no references to outdated libraries or practices, and the suggestions made are consistent with current standards in C programming.
-
-Additional Languages Involved
-None
+root = tk.Tk()
+app = SlidingPuzzle(root)
+root.mainloop()
