@@ -20,8 +20,7 @@ The PEP8 issue of a long line (E501) and missing blank lines after functions (E3
 Presentation
 Rating: 2 (Minor Issue)
 Reason:
-
-The code is reasonably well-organized, and the comments help explain the functionality. However, the PEP8 issue of missing extra blank lines between method definitions (E305) reduces readability and presentation.
+. However, the PEP8 issue of missing extra blank lines between method definitions (E305) reduces readability and presentation.
 Additionally, the long line issue (E501) also makes the code harder to read at a glance. It would benefit from breaking the long line into smaller, more manageable chunks to improve clarity.
 Up-to-Date
 Rating: 1 (Up-To-Date)
