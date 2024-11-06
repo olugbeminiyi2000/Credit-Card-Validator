@@ -1,69 +1,49 @@
-import os
-import socket
-import sys
-from urllib.parse import urlparse
+import tkinter as tk
+import random
 
-def get_document(root_path, location):
-    file_path = os.path.join(root_path, location.lstrip('/'))
-    try:
-        with open(file_path, mode="r", encoding="utf-8") as fp:
-            data = ""
-            for line in fp:
-                line += "\r\n"
-                data += line
-            return data
-    except FileNotFoundError:
-        return None
+class SlidingPuzzle:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Sliding Puzzle")
+        self.tiles = [[str(i + j * 3 + 1) for i in range(3)] for j in range(3)]
+        self.tiles[2][2] = ""
+        self.buttons = [[None] * 3 for _ in range(3)]
+        self.empty_row = 2
+        self.empty_col = 2
+        self.create_ui()
 
-def webserver():
-    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print(sys.argv)
-    root_path = sys.argv[1]
-    try:
-        serversocket.bind(("localhost", 9000))
-        serversocket.listen(5)
-        while True:
-            (clientsocket, address) = serversocket.accept()
-            rd = clientsocket.recv(5000).decode()
-            pieces = rd.split("\n")
-            if len(pieces) > 0:
-                print(pieces[0])
-            rq = pieces[0].split()
-            parsed_url = urlparse(rq[1])
-            location = parsed_url.path
-            data = get_document(root_path, location)
-            if data is None:
-                response = "HTTP/1.1 404 Not Found\r\n\r\n"
-            else:
-                response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n" + data
-            clientsocket.sendall(response.encode())
-            clientsocket.shutdown(socket.SHUT_WR)
+    def create_ui(self):
+        for i in range(3):
+            for j in range(3):
+                self.buttons[i][j] = tk.Button(self.master, text=self.tiles[i][j], font=("Helvetica", 32), width=4, height=2, command=lambda r=i, c=j: self.move_tile(r, c))
+                self.buttons[i][j].grid(row=i, column=j)
+        tk.Button(self.master, text="Shuffle", font=("Helvetica", 16), command=self.shuffle).grid(row=3, columnspan=3)
 
-    except KeyboardInterrupt:
-        print("\nShutting down...\n")
-    except Exception as exc:
-        print("Error:\n")
-        print(exc)
-    serversocket.close()
+    def shuffle(self):
+        for _ in range(100):
+            directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+            dr, dc = random.choice(directions)
+            new_row, new_col = self.empty_row + dr, self.empty_col + dc
+            if 0 <= new_row < 3 and 0 <= new_col < 3:
+                self.tiles[self.empty_row][self.empty_col], self.tiles[new_row][new_col] = self.tiles[new_row][new_col], self.tiles[self.empty_row][self.empty_col]
+                self.buttons[self.empty_row][self.empty_col]['text'] = self.tiles[self.empty_row][self.empty_col]
+                self.buttons[new_row][new_col]['text'] = self.tiles[new_row][new_col]
+                self.empty_row, self.empty_col = new_row, new_col
 
-if __name__ == "__main__":
-    webserver()
+    def move_tile(self, row, col):
+        if abs(row - self.empty_row) + abs(col - self.empty_col) == 1:
+            self.tiles[self.empty_row][self.empty_col], self.tiles[row][col] = self.tiles[row][col], self.tiles[self.empty_row][self.empty_col]
+            self.buttons[self.empty_row][self.empty_col]['text'] = self.tiles[self.empty_row][self.empty_col]
+            self.buttons[row][col]['text'] = self.tiles[row][col]
+            self.empty_row, self.empty_col = row, col
+            self.check_win()
 
--------------------------------------------------------------------------
-import socket
+    def check_win(self):
+        win_condition = [[str(i + j * 3 + 1) for i in range(3)] for j in range(3)]
+        win_condition[2][2] = ""
+        if self.tiles == win_condition:
+            tk.Label(self.master, text="Congratulations!!", font=("Helvetica", 16)).grid(row=4, columnspan=3)
 
-def webbrowser():
-    mysock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    mysock.connect(('localhost', 9000))
-    cmd = "GET http://127.0.0.1/django/django.txt HTTP/1.0\r\n\r\n".encode()
-    mysock.send(cmd)
-
-    while True:
-        data = mysock.recv(512)
-        if len(data) < 1:
-            break
-        print(data.decode(), end='')
-    mysock.close()
-
-if __name__ == "__main__":
-    webbrowser()
+root = tk.Tk()
+app = SlidingPuzzle(root)
+root.mainloop()
