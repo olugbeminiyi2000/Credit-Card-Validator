@@ -1,81 +1,78 @@
 """webbrowser function"""
 if __name__ == "__main__":
-  import socket
+    import socket
 
+    def webbrowser():
+        mysock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        mysock.connect(('localhost', 9000))
+        cmd = "GET http://127.0.0.1/django/django.txt HTTP/1.0\r\n\r\n".encode()
+        mysock.send(cmd)
 
-  def webbrowser():
-    mysock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    mysock.connect(('localhost', 9000))
-    cmd = "GET http://127.0.0.1/django/django.txt HTTP/1.0\r\nHost: 127.0.0.1\r\n\r\n".encode()
-    mysock.send(cmd)
+        while True:
+            data = mysock.recv(512)
+            if len(data) < 1:
+                break
+            print(data.decode(), end='')
+        mysock.close()
 
-    while True:
-      data = mysock.recv(512)
-      if len(data) < 1:
-        break
-      print(data.decode(), end='')
-    mysock.close()
-webbrowser()
+    webbrowser()
 
 -----------------------------------------------------------------
 """webserver"""
 if __name__ == "__main__":
-	import platform
-	from socket import *
-	import sys
-	import os
+    import platform
+    from socket import *
+    import sys
 
-	def getDocument(root_path, location):
-		search_file = os.path.join(root_path, location)
-		try:
-			with open(search_file, mode="r", encoding="utf-8") as fp:
-				data = ""
-				for line in fp:
-					line += "\r\n"
-					data += line
-				return data
-		except FileNotFoundError:
-			default_file = "python.txt"
-			default_file_path = os.path.join(root_path, default_file)
-			try:
-				with open(default_file_path, mode="r", encoding="utf-8") as efp:
-					error_data = ""
-					for line in efp:
-						line += "\r\n"
-						error_data += line
-					return error_data
-			except FileNotFoundError:
-				return "404 Not Found\r\n"
+    def get_document(root_path, location):
+        search_file = f"{root_path}{location}"
+        try:
+            with open(search_file, mode="r", encoding="utf-8") as fp:
+                data = ""
+                for line in fp:
+                    data += line
+                return data
+        except FileNotFoundError:
+            default_file = "/python.txt"
+            try:
+                with open(root_path + default_file, mode="r", encoding="utf-8") as efp:
+                    error_data = ""
+                    for line in efp:
+                        error_data += line
+                    return error_data
+            except FileNotFoundError:
+                return "Default file not found"
 
-	def webserver():
-		# create a phone
-		serversocket = socket(AF_INET, SOCK_STREAM)
-		print(sys.argv)
-		root_path = sys.argv[1]
-		try:
-			serversocket.bind(("localhost", 9000))
-			serversocket.listen(5)
-			while (1):
-				(clientsocket, address) = serversocket.accept()
-				rd = clientsocket.recv(5000).decode()
-				pieces = rd.split("\n")
-				if len(pieces) > 0:
-					print(pieces[0])
-				rq = pieces[0].split()
-				url = rq[1]
-				location = url.split("//", maxsplit=1)[1]
-				location = location.split("/", maxsplit=1)[1]
-				if location == "":
-					location = "index.txt"
-				print(location)
-				data = getDocument(root_path, location)
-				clientsocket.sendall(f"HTTP/1.0 200 OK\r\n\r\n{data}".encode())
-				clientsocket.shutdown(SHUT_WR)
+    def webserver():
+        # create a phone
+        serversocket = socket(AF_INET, SOCK_STREAM)
+        print(sys.argv)
+        root_path = sys.argv[1]
+        if not root_path.endswith("/"):
+            root_path += "/"
+        try:
+            serversocket.bind(("localhost", 9000))
+            serversocket.listen(5)
+            while (1):
+                (clientsocket, address) = serversocket.accept()
+                rd = clientsocket.recv(5000).decode()
+                pieces = rd.split("\n")
+                if len(pieces) > 0:
+                    print(pieces[0])
+                rq = pieces[0].split()
+                location = rq[1].split("//", maxsplit=1)[1]
+                print(location)
+                if platform.system() == "Windows":
+                    location = location.replace("/", "\\")
+                data = get_document(root_path, location)
+                clientsocket.sendall(f"HTTP/1.1 200 OK\r\n\r\n{data}".encode())
+                clientsocket.shutdown(SHUT_WR)
 
-		except KeyboardInterrupt:
-			print("\nShutting down...\n")
-		except Exception as exc:
-			print("Error:\n")
-			print(exc)
-		serversocket.close()
-	webserver()
+        except KeyboardInterrupt:
+            print("\nShutting down...\n")
+        except Exception as exc:
+            print("Error:\n")
+            print(exc)
+        serversocket.close()
+
+    webserver()
