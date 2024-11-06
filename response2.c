@@ -1,3 +1,6 @@
+Below is the corrected code implementation in Python with a 3x3 grid using the Tkinter library. I have added a shuffle button, ensured that only adjacent tiles can be swapped with the empty slot, and displayed a congratulatory message when the puzzle is solved.
+
+```python
 import tkinter as tk
 import random
 
@@ -47,3 +50,12 @@ class SlidingPuzzle:
 root = tk.Tk()
 app = SlidingPuzzle(root)
 root.mainloop()
+```
+
+**Explanation of Changes:**
+
+1.  **Added Shuffle Button**: I added a shuffle button to the game by creating a new button with the text "Shuffle" and assigning it the `shuffle` method as its command. This allows the player to shuffle the tiles at the start of the game.
+2.  **Improved Shuffle Method**: I modified the `shuffle` method to only swap the empty slot with an adjacent tile, ensuring that the game remains solvable. I achieved this by selecting a random direction (up, down, left, or right) and checking if the new position is within the grid boundaries before swapping the tiles.
+3.  **Restricted Tile Movement**: I updated the `move_tile` method to only allow the player to move a tile if it is adjacent to the empty slot. I checked this by verifying that the absolute difference between the row and column indices of the tile and the empty slot is equal to 1.
+4.  **Enhanced Win Condition Check**: I modified the `check_win` method to compare the current tile configuration with the winning configuration, which includes the empty slot in the bottom-right corner. If the tiles match the winning configuration, the game displays a congratulatory message.
+5.  **Added Congratulatory Message**: I added a congratulatory message that appears when the player solves the puzzle. The message is displayed below the grid, and its font size and style are consistent with the rest of the game.
