@@ -129,3 +129,11 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = SlidingPuzzle(root)
     root.mainloop()
+
+
+
+
+
+E302: Expected two blank lines, but only one was found. This can be fixed by adding an additional blank line after function or class definitions.
+E501: Line 76 exceeds 79 characters. To fix this, split the line into smaller parts to comply with PEP8.
+E305: Expected two blank lines after the class definition, but only one is found. This can be fixed by adding an additional blank line after the class declaration.
