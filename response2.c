@@ -45,11 +45,27 @@ class Hotel:
             print(f"Customer: {reservation[0]}, Room: {reservation[1]}")
 
 
+# Create a new hotel instance
+hotel = Hotel("Ocean View", [101, 102, 103])
+
+# Make a reservation
+hotel.make_reservation("John Doe", 101)
+hotel.make_reservation("John Doe", 101)
+hotel.make_reservation("John Doe", 101)
+hotel.make_reservation("John Doe", 103)
+hotel.make_reservation("John Doe", 104)
 
 
 
+### Explanation of Errors in Initial Code
 
-### Explanation of Fixes in Optimized Code
+1. **Incorrect Room Availability Check Logic**:
+   - The `if` condition in `make_reservation` was designed to check if a room is available by verifying that the room number exists in `self.rooms` and is not yet in `self.reservations`. However, it printed `"Room isn't available"` when the room was, in fact, available due to an inverted condition.
+   
+2. **Indentation Issue**:
+   - The initial code had an indentation error in the `make_reservation` method, which prevented it from running properly. Specifically, the `print` statement inside the `else` block was not aligned correctly, causing a syntax error.
+
+### Explanation of Fixes in Corrected Code
 
 1. **Corrected Room Availability Check Logic**:
    - The corrected code revised the room availability check. Instead of printing `"Room isn't available"` when a room *is* available, it correctly performs the following:
@@ -64,7 +80,7 @@ class Hotel:
 3. **Refactored Logic with Descriptive Comments**:
    - The corrected code adds a comment for the `reserved_rooms` attribute, explaining that it’s used to quickly verify if a room is reserved, avoiding repeated list traversal.
 
-### Code Efficiency
+### Code Efficiency Analysis
 
 - **Time Complexity**:
   - **`make_reservation`**:
