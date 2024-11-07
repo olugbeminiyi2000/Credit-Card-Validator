@@ -42,3 +42,6 @@ Here are the detailed explanations and debugging steps for the errors fixed in t
 
 - **Fixed Condition Logic**: Ensured that the `if` statement checks both availability and reservation status, only making a reservation if both are met.
 - **Indentation Correction**: Properly aligned `self.reservations.append(...)` and `print(...)` statements within the `else` block, ensuring correct execution flow.
+
+
+Is the code optimal, also describe the code efficiency (i.e. O(n^2) vs O(1), etc) correctly. Make sure to verify.
