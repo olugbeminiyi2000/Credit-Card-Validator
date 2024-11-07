@@ -1,3 +1,11 @@
+What is the difficulty of your prompt? *
+Medium - Limited domain/algorithmics knowledge or implementation context (e.g., architecture, libraries, pre-existing code)
+Hard - Knowledge of standard algorithms and data structures, common libraries and concepts or additional code context may be required to achieve an optimal solution.
+Challenger - Require expert domain knowledge or information on the specific application or deployment scenario, including substantial specific API/code context.
+
+
+
+
 Pay Close Attention to These
 
 Important Reminder of Guidelines for Lemur Astrologer
