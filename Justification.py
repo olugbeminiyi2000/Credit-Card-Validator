@@ -9,7 +9,7 @@ Challenger - Require expert domain knowledge or information on the specific appl
 Pay Close Attention to These
 
 Important Reminder of Guidelines for Lemur Astrologer
-As an attempter or reviewer you must go through this important checklist to ensure task quality in addition to existing guidelines present in the instructions or reviewer checklist.
+As a reviewer you must go through this important checklist to ensure task quality in addition to existing guidelines present in the instructions or reviewer checklist.
 
 
 1. Prompt Categorization:
