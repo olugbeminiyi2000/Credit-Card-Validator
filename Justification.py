@@ -3,7 +3,12 @@ Medium - Limited domain/algorithmics knowledge or implementation context (e.g., 
 Hard - Knowledge of standard algorithms and data structures, common libraries and concepts or additional code context may be required to achieve an optimal solution.
 Challenger - Require expert domain knowledge or information on the specific application or deployment scenario, including substantial specific API/code context.
 
-
+Prompt Creation:
+Write the initial prompt based on the task category and programming language.
+Ensure each prompt is clear, specific, and challenging to the model.
+Design the prompts to reflect the set difficulty level.
+Use only English for all prompts.
+Avoid low-effort prompts, such as single-sentence prompts or incredibly generic prompts without any constraints.
 
 
 Pay Close Attention to These
