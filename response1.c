@@ -28,12 +28,11 @@ class Hotel:
         customer_name (str): The name of the customer.
         room_number (int): The number of the room.
         """
-        if room_number not in self.rooms or room_number in [reservation[1] for reservation in self.reservations]:
-            print("Room isn't available")
-        else:
+        if room_number in self.rooms and room_number not in [reservation[1] for reservation in self.reservations]:
             self.reservations.append((customer_name, room_number))
             print(f"Reservation confirmed for {customer_name} in room {room_number}")
-
+        else:
+            print("Room isn't available")
     def view_reservations(self):
         """
         Displays all reservations.
