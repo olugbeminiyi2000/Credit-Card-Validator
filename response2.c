@@ -1,47 +1,75 @@
-Here are the detailed explanations and debugging steps for the errors fixed in the initial model's response code:
+class Hotel:
+    """
+    A class to represent a hotel.
+    
+    Attributes:
+    name (str): The name of the hotel.
+    rooms (list): A list of available rooms.
+    reservations (list): A list of reservations.
+    reserved_rooms (set): A set of reserved room numbers for quick availability checks.
+    """
+    
+    def __init__(self, name, rooms):
+        """
+        Initializes a new Hotel instance.
+        
+        Args:
+        name (str): The name of the hotel.
+        rooms (list): A list of available rooms.
+        """
+        self.name = name
+        self.rooms = rooms
+        self.reservations = []
+        self.reserved_rooms = set()  # Set for tracking reserved room numbers
 
-### Issues in the Initial Code
+    def make_reservation(self, customer_name, room_number):
+        """
+        Makes a reservation for a customer in a room.
+        
+        Args:
+        customer_name (str): The name of the customer.
+        room_number (int): The number of the room.
+        """
+        if room_number in self.rooms and room_number not in self.reserved_rooms:
+            self.reservations.append((customer_name, room_number))
+            self.reserved_rooms.add(room_number)  # Add to reserved rooms set
+            print(f"Reservation confirmed for {customer_name} in room {room_number}")
+        else:
+            print("Room isn't available")
 
-1. **Incorrect Availability Check Condition in `make_reservation`**:
-   - The initial code incorrectly checks room availability. The condition in `make_reservation` should ensure the room exists in `self.rooms` and is not already reserved before confirming a reservation.
-   - However, the `if` statement:
-     ```python
-     if room_number in self.rooms and room_number not in [reservation[1] for reservation in self.reservations]:
-         print("Room isn't available")
-     ```
-     was incorrectly structured. It prints `"Room isn't available"` if the room is available instead of making a reservation.
-
-2. **Indentation Error in the `else` Block**:
-   - The initial model’s code contained an indentation error in the `else` block:
-     ```python
-     self.reservations.append((customer_name, room_number))
-     print(f"Reservation confirmed for {customer_name} in room {room_number}")
-     ```
-   - This line wasn't correctly aligned under `else`, potentially causing syntax errors or unexpected behavior during execution.
-
-### Corrections in the Updated Code
-
-1. **Corrected the `if-else` Condition Logic**:
-   - The `if-else` condition in `make_reservation` was adjusted to check availability correctly:
-     ```python
-     if room_number in self.rooms and room_number not in [reservation[1] for reservation in self.reservations]:
-         self.reservations.append((customer_name, room_number))
-         print(f"Reservation confirmed for {customer_name} in room {room_number}")
-     else:
-         print("Room isn't available")
-     ```
-   - Now, the code will only add a reservation if:
-     - The `room_number` is in `self.rooms`.
-     - The `room_number` is not already in `self.reservations`.
-   - The `"Room isn't available"` message is printed only if either condition is unmet.
-
-2. **Corrected Indentation in the `else` Block**:
-   - Proper indentation was applied to align `self.reservations.append(...)` and `print(...)` statements under `else`. This correction ensures proper code execution without syntax errors.
-
-### Summary of Fixes in the Corrected Code
-
-- **Fixed Condition Logic**: Ensured that the `if` statement checks both availability and reservation status, only making a reservation if both are met.
-- **Indentation Correction**: Properly aligned `self.reservations.append(...)` and `print(...)` statements within the `else` block, ensuring correct execution flow.
+    def view_reservations(self):
+        """
+        Displays all reservations.
+        """
+        for reservation in self.reservations:
+            print(f"Customer: {reservation[0]}, Room: {reservation[1]}")
 
 
-Is the code optimal, also describe the code efficiency (i.e. O(n^2) vs O(1), etc) correctly. Make sure to verify.
+
+
+
+
+### Explanation of Fixes in Optimized Code
+
+1. **Corrected Room Availability Check Logic**:
+   - The corrected code revised the room availability check. Instead of printing `"Room isn't available"` when a room *is* available, it correctly performs the following:
+     - Checks if the room is part of `self.rooms` and not in a new `reserved_rooms` set, which tracks reserved room numbers.
+     - Only if the room passes both checks is the reservation confirmed, and the room is added to `self.reserved_rooms`.
+   
+2. **Efficient Room Reservation Tracking Using a Set**:
+   - The corrected code introduces a `reserved_rooms` set. This change significantly improves efficiency:
+     - **Time Complexity**: The original approach had an \(O(n)\) complexity for each reservation check, where \(n\) is the number of reservations, as it iterated over `self.reservations`.
+     - **Optimized Complexity**: The use of a set reduces the time complexity of checking if a room is already reserved to \(O(1)\), improving the efficiency of `make_reservation`.
+  
+3. **Refactored Logic with Descriptive Comments**:
+   - The corrected code adds a comment for the `reserved_rooms` attribute, explaining that it’s used to quickly verify if a room is reserved, avoiding repeated list traversal.
+
+### Code Efficiency
+
+- **Time Complexity**:
+  - **`make_reservation`**:
+    - **Corrected Code**: \(O(1)\) for checking room availability due to set membership checks.
+    - **Initial Code**: \(O(n)\) for each reservation check because of list traversal.
+  - **`view_reservations`**: \(O(n)\), where \(n\) is the number of reservations, as it simply iterates over `self.reservations` to display each one.
+
+    The corrected code provides a substantial efficiency boost in checking room availability by reducing the average time complexity for this operation from \(O(n)\) to \(O(1)\).
