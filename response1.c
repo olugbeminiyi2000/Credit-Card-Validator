@@ -1,3 +1,11 @@
+This conversation was completed with the following Task Guidelines:
+⭐️ First-Turn Category: Code debugging
+
+⭐️ Target Programming Language: Python
+
+⭐️ Difficulty: Medium
+
+
 I have a python code that manages the booking and reservation process for a hotel. 
 There are some errors in the code that prevent it from running, I want to fix it, it seems like some syntax errors or other error you should check.
 
