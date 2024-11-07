@@ -1,3 +1,8 @@
+The main change in the corrected code improves the efficiency and accuracy of the room reservation system by fixing the room availability check logic and using a set (`reserved_rooms`) to track reserved rooms. This eliminates redundant list traversals, reducing the time complexity for checking room availability from \(O(n)\) to \(O(1)\). Additionally, the corrected code includes clearer, more descriptive comments and fixes an indentation error that prevented the code from running correctly. These changes streamline the reservation process and enhance code readability and performance.
+
+
+
+
 class Hotel:
     """
     A class to represent a hotel.
