@@ -1,55 +1,3 @@
-Key Changes:
-Refactored Class (CapitalCityGame):
-
-The CapitalCityGame class now directly takes the root Tkinter window as an argument in its constructor, similar to CountryCapitalGame in Code 2.
-Timer with Threading:
-
-The start_timer method now uses a separate thread (threading.Thread) to handle the countdown and update the timer label without blocking the main game loop.
-Button Layout:
-
-Buttons are placed in a grid with 5 columns, similar to Code 2's layout (self.buttons_text.index(text) // 5).
-Message Feedback:
-
-A message_label is added to show "Correct Match!" or "Incorrect Match!" messages, along with changing the message color (green for correct, red for incorrect).
-Sound Effects:
-
-The play_sound method handles the playing of sound files for correct and incorrect matches.
-Game End Conditions:
-
-The game ends either when the timer runs out or when all pairs are correctly matched, with a pop-up message displaying the final result.
-
-
-
-
-Game Initialization and Setup: This code creates a graphical country-capital matching game using Tkinter, where players are prompted to match a capital city with its respective country. The main game structure includes a timer, scoring system, and sound effects for user feedback.
-
-Gameplay and Logic: Players select countries and capitals from randomized buttons; when a correct pair is chosen, points are awarded, and both buttons are disabled. Incorrect matches prompt an error message. The game ends when all pairs are matched or time runs out.
-
-Multithreading for Timer: The countdown timer runs in a separate thread to ensure the game remains responsive. Sound effects use Pygame for quick audio feedback on correct and incorrect matches.
-
-Complexity Analysis:
-
-Time Complexity: Button initialization is 
-𝑂
-(
-𝑛
-)
-O(n), where 
-𝑛
-n is twice the number of country-capital pairs, as each country and capital has its own button. Match checking is 
-𝑂
-(
-1
-)
-O(1) for each click, as dictionary access in Python is constant time.
-Space Complexity: 
-𝑂
-(
-𝑛
-)
-O(n) for storing button widgets and country-capital pairs.
-
-
 import tkinter as tk
 from tkinter import messagebox
 import random
@@ -74,8 +22,8 @@ class CapitalCityGame:
         self.click_count = 0
         self.selected_country = ""
         self.selected_capital = ""
-        self.timer_running = True
-        self.time_left = 600  # 10 minutes in seconds
+        self.timer_running = False
+        self.time_left = 60  # 1 minute for testing
 
         # Country-Capital pairs
         self.capital_dict = {
@@ -122,7 +70,6 @@ class CapitalCityGame:
             "Romania": "Bucharest",
             "Russia": "Moscow",
             "Serbia": "Belgrade",
-            "Singapore": "Singapore",
             "Slovakia": "Bratislava",
             "Slovenia": "Ljubljana",
             "South Africa": "Pretoria",
@@ -147,7 +94,7 @@ class CapitalCityGame:
         random.shuffle(self.buttons_text)
 
         # Create timer label
-        self.timer_label = tk.Label(self.root, text="Time left: 10:00", font=("Arial", 14))
+        self.timer_label = tk.Label(self.root, text="Time left: 01:00", font=("Arial", 14))
         self.timer_label.pack(pady=10)
 
         # Display the score
@@ -168,8 +115,17 @@ class CapitalCityGame:
             btn = tk.Button(self.button_frame, text=text, font=("Arial", 10), width=15, command=lambda t=text: self.button_click(t))
             btn.grid(row=i // 10, column=i % 10, padx=5, pady=5)
             self.buttons[text] = btn
+            btn.config(state="disabled")
 
-        # Start the timer thread
+        # Create start game button
+        self.start_button = tk.Button(self.root, text="Start Game", font=("Arial", 14), command=self.start_game)
+        self.start_button.pack(pady=10)
+
+    def start_game(self):
+        self.start_button.config(state="disabled")
+        for btn in self.buttons.values():
+            btn.config(state="normal")
+        self.timer_running = True
         self.start_timer()
 
     def start_timer(self):
@@ -242,7 +198,32 @@ class CapitalCityGame:
         Ends the game, displaying the final message and stopping the timer.
         """
         self.timer_running = False
-        messagebox.showinfo("Game Over", message)
+
+        # Disable all buttons (start, and randomized)
+        for btn in self.buttons.values():
+            btn.config(state="disabled")
+
+        response = messagebox.askyesnocancel("Game Over", f"{message} Do you want to play again?")
+        if response is None:
+            self.root.destroy()
+        elif response:
+            self.reset_game()
+
+    def reset_game(self):
+        self.score = 0
+        self.time_left = 60  # 1 minute for testing
+        self.score_label.config(text="Score: 0")
+        self.timer_label.config(text="Time left: 01:00")
+        self.message_label.config(text="")
+        self.start_button.config(state="normal")
+        for btn in self.buttons.values():
+            btn.config(state="disabled")
+        random.shuffle(self.items)
+        self.buttons_text = [item[0] for item in self.items] + [item[1] for item in self.items]
+        random.shuffle(self.buttons_text)
+        for i, text in enumerate(self.buttons_text):
+            self.buttons[text].grid(row=i // 10, column=i % 10, padx=5, pady=5)
+            self.buttons[text].config(text=text)
 
 # Run the game
 root = tk.Tk()
