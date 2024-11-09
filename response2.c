@@ -1,96 +1,112 @@
-Write a few sentences of feedback to the contributor who last worked on this task. Try and be as actionable and specific as possible, this feedback will be directly surfaced to the relevant contributors!
+import tkinter as tk
+from tkinter import messagebox
+import random
+import pygame
+import time
 
+class CapitalCityGame:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Capital City Matching Game")
+        self.countries = {
+            "France": "Paris",
+            "Germany": "Berlin",
+            "Italy": "Rome",
+            "Spain": "Madrid",
+            "Portugal": "Lisbon",
+            "Greece": "Athens",
+            "Austria": "Vienna",
+            "Belgium": "Brussels",
+            "Croatia": "Zagreb",
+            "Cyprus": "Nicosia"
+        }
+        self.country_buttons = {}
+        self.capital_buttons = {}
+        self.country_selected = None
+        self.capital_selected = None
+        self.matches = 0
+        self.score = 0
+        self.time_left = 600  # 10 minutes
+        self.create_widgets()
+        self.layout_widgets()
+        self.update_timer()
 
+    def create_widgets(self):
+        self.country_frame = tk.Frame(self.root)
+        self.capital_frame = tk.Frame(self.root)
+        self.score_label = tk.Label(self.root, text="Score: 0")
+        self.time_label = tk.Label(self.root, text="Time left: 10:00")
+        self.country_list = list(self.countries.keys())
+        self.capital_list = list(self.countries.values())
+        random.shuffle(self.country_list)
+        random.shuffle(self.capital_list)
+        for country in self.country_list:
+            self.country_buttons[country] = tk.Button(self.country_frame, text=country, command=lambda c=country: self.select_country(c))
+        for capital in self.capital_list:
+            self.capital_buttons[capital] = tk.Button(self.capital_frame, text=capital, command=lambda c=capital: self.select_capital(c))
+        pygame.init()
+        pygame.mixer.init()
 
+    def layout_widgets(self):
+        self.score_label.pack()
+        self.time_label.pack()
+        self.country_frame.pack()
+        self.capital_frame.pack()
+        for country in self.country_buttons.values():
+            country.pack(side=tk.LEFT)
+        for capital in self.capital_buttons.values():
+            capital.pack(side=tk.LEFT)
 
-class Hotel:
-    """
-    A class to represent a hotel.
-    
-    Attributes:
-    name (str): The name of the hotel.
-    rooms (list): A list of available rooms.
-    reservations (list): A list of reservations.
-    reserved_rooms (set): A set of reserved room numbers for quick availability checks.
-    """
-    
-    def __init__(self, name, rooms):
-        """
-        Initializes a new Hotel instance.
-        
-        Args:
-        name (str): The name of the hotel.
-        rooms (list): A list of available rooms.
-        """
-        self.name = name
-        self.rooms = rooms
-        self.reservations = []
-        self.reserved_rooms = set()  # Set for tracking reserved room numbers
+    def select_country(self, country):
+        if self.country_selected:
+            self.country_buttons[self.country_selected].config(relief="raised")
+        self.country_selected = country
+        self.country_buttons[country].config(relief="sunken")
+        self.check_match()
 
-    def make_reservation(self, customer_name, room_number):
-        """
-        Makes a reservation for a customer in a room.
-        
-        Args:
-        customer_name (str): The name of the customer.
-        room_number (int): The number of the room.
-        """
-        if room_number in self.rooms and room_number not in self.reserved_rooms:
-            self.reservations.append((customer_name, room_number))
-            self.reserved_rooms.add(room_number)  # Add to reserved rooms set
-            print(f"Reservation confirmed for {customer_name} in room {room_number}")
+    def select_capital(self, capital):
+        if self.capital_selected:
+            self.capital_buttons[self.capital_selected].config(relief="raised")
+        self.capital_selected = capital
+        self.capital_buttons[capital].config(relief="sunken")
+        self.check_match()
+
+    def check_match(self):
+        if self.country_selected and self.capital_selected:
+            if self.countries[self.country_selected] == self.capital_selected:
+                self.score += 1
+                self.matches += 1
+                self.score_label.config(text=f"Score: {self.score}")
+                self.country_buttons[self.country_selected].config(state="disabled")
+                self.capital_buttons[self.capital_selected].config(state="disabled")
+                pygame.mixer.music.load("success.mp3")
+                pygame.mixer.music.play()
+            else:
+                pygame.mixer.music.load("error.mp3")
+                pygame.mixer.music.play()
+                self.country_buttons[self.country_selected].config(relief="raised")
+                self.capital_buttons[self.capital_selected].config(relief="raised")
+                self.country_selected = None
+                self.capital_selected = None
+            if self.matches == len(self.countries):
+                messagebox.showinfo("Congratulations!", f"Your final score is {self.score}!")
+                self.root.quit()
+
+    def update_timer(self):
+        minutes, seconds = divmod(self.time_left, 60)
+        self.time_label.config(text=f"Time left: {minutes:02d}:{seconds:02d}")
+        self.time_left -= 1
+        if self.time_left < 0:
+            pygame.mixer.music.load("gameover.mp3")
+            pygame.mixer.music.play()
+            messagebox.showinfo("Game Over!", f"Your final score is {self.score}!")
+            self.root.quit()
         else:
-            print("Room isn't available")
+            self.root.after(1000, self.update_timer)
 
-    def view_reservations(self):
-        """
-        Displays all reservations.
-        """
-        for reservation in self.reservations:
-            print(f"Customer: {reservation[0]}, Room: {reservation[1]}")
+    def run(self):
+        self.root.mainloop()
 
-
-# Create a new hotel instance
-hotel = Hotel("Ocean View", [101, 102, 103])
-
-# Make a reservation
-hotel.make_reservation("John Doe", 101)
-hotel.make_reservation("John Doe", 101)
-hotel.make_reservation("John Doe", 101)
-hotel.make_reservation("John Doe", 103)
-hotel.make_reservation("John Doe", 104)
-
-
-
-### Explanation of Errors in Initial Code
-
-1. **Incorrect Room Availability Check Logic**:
-   - The `if` condition in `make_reservation` was designed to check if a room is available by verifying that the room number exists in `self.rooms` and is not yet in `self.reservations`. However, it printed `"Room isn't available"` when the room was, in fact, available due to an inverted condition.
-   
-2. **Indentation Issue**:
-   - The initial code had an indentation error in the `make_reservation` method, which prevented it from running properly. Specifically, the `print` statement inside the `else` block was not aligned correctly, causing a syntax error.
-
-### Explanation of Fixes in Corrected Code
-
-1. **Corrected Room Availability Check Logic**:
-   - The corrected code revised the room availability check. Instead of printing `"Room isn't available"` when a room *is* available, it correctly performs the following:
-     - Checks if the room is part of `self.rooms` and not in a new `reserved_rooms` set, which tracks reserved room numbers.
-     - Only if the room passes both checks is the reservation confirmed, and the room is added to `self.reserved_rooms`.
-   
-2. **Efficient Room Reservation Tracking Using a Set**:
-   - The corrected code introduces a `reserved_rooms` set. This change significantly improves efficiency:
-     - **Time Complexity**: The original approach had an \(O(n)\) complexity for each reservation check, where \(n\) is the number of reservations, as it iterated over `self.reservations`.
-     - **Optimized Complexity**: The use of a set reduces the time complexity of checking if a room is already reserved to \(O(1)\), improving the efficiency of `make_reservation`.
-  
-3. **Refactored Logic with Descriptive Comments**:
-   - The corrected code adds a comment for the `reserved_rooms` attribute, explaining that it’s used to quickly verify if a room is reserved, avoiding repeated list traversal.
-
-### Code Efficiency Analysis
-
-- **Time Complexity**:
-  - **`make_reservation`**:
-    - **Corrected Code**: \(O(1)\) for checking room availability due to set membership checks.
-    - **Initial Code**: \(O(n)\) for each reservation check because of list traversal.
-  - **`view_reservations`**: \(O(n)\), where \(n\) is the number of reservations, as it simply iterates over `self.reservations` to display each one.
-
-    The corrected code provides a substantial efficiency boost in checking room availability by reducing the average time complexity for this operation from \(O(n)\) to \(O(1)\).
+if __name__ == "__main__":
+    game = CapitalCityGame()
+    game.run()
