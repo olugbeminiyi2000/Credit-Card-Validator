@@ -1,3 +1,14 @@
+Game Setup: Initializes the Tkinter window, game state, sound effects (pygame), and randomizes country-capital button positions.
+Button Color Change & Feedback: On a button click, the game checks for a correct or incorrect match. If correct, both buttons briefly change color (green), and if incorrect, they turn red. The colors reset after a short delay using reset_button_color.
+Timer and Game End: A countdown timer runs in a separate thread. When the timer ends or all pairs are matched, the game ends, offering the option to restart or quit.
+Complexity:
+Time Complexity: O(1) for match checking and button click handling; O(N) for resetting game state or button reorganization.
+Space Complexity: O(N), mainly for storing game state, buttons, and country-capital pairs.
+
+
+
+
+
 import tkinter as tk
 from tkinter import messagebox
 import random
