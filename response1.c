@@ -1,3 +1,5 @@
+Below is the modified code with the additional functionality of changing the background color of the buttons when a match is found or not.
+```python
 import tkinter as tk
 from tkinter import messagebox
 import random
@@ -245,3 +247,11 @@ class CapitalCityGame:
 root = tk.Tk()
 game = CapitalCityGame(root)
 root.mainloop()
+```
+Below is an explanation of the modifications made to the code:
+
+* The check_match method has been updated to change the background color of the buttons when a match is found or not. The color is changed briefly and then reset back to the default color using the after method.
+
+* A new method reset_button_color has been added to reset the background color of the buttons.
+
+* The game now provides visual feedback to the user when a match is found or not, making it more engaging and user-friendly.
