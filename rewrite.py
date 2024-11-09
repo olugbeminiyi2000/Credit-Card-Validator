@@ -1,4 +1,30 @@
-This code creates a GUI with two columns of buttons, one for countries and one for capitals. When a country and a capital are selected, the game checks if they match. If they do, the score is incremented and a success sound is played. If they don't, an error sound is played. The game continues until all pairs are matched or the time runs out. When the game is over, a message box is displayed with the final score.
+Game Initialization and Setup: This code creates a graphical country-capital matching game using Tkinter, where players are prompted to match a capital city with its respective country. The main game structure includes a timer, scoring system, and sound effects for user feedback.
+
+Gameplay and Logic: Players select countries and capitals from randomized buttons; when a correct pair is chosen, points are awarded, and both buttons are disabled. Incorrect matches prompt an error message. The game ends when all pairs are matched or time runs out.
+
+Multithreading for Timer: The countdown timer runs in a separate thread to ensure the game remains responsive. Sound effects use Pygame for quick audio feedback on correct and incorrect matches.
+
+Complexity Analysis:
+
+Time Complexity: Button initialization is 
+𝑂
+(
+𝑛
+)
+O(n), where 
+𝑛
+n is twice the number of country-capital pairs, as each country and capital has its own button. Match checking is 
+𝑂
+(
+1
+)
+O(1) for each click, as dictionary access in Python is constant time.
+Space Complexity: 
+𝑂
+(
+𝑛
+)
+O(n) for storing button widgets and country-capital pairs.
 
 
 import tkinter as tk
