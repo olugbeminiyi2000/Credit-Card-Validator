@@ -1,3 +1,6 @@
+This code creates a GUI with two columns of buttons, one for countries and one for capitals. When a country and a capital are selected, the game checks if they match. If they do, the score is incremented and a success sound is played. If they don't, an error sound is played. The game continues until all pairs are matched or the time runs out. When the game is over, a message box is displayed with the final score.
+
+
 import tkinter as tk
 from tkinter import messagebox
 import random
