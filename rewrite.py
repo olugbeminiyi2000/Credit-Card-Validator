@@ -1,3 +1,26 @@
+Key Changes:
+Refactored Class (CapitalCityGame):
+
+The CapitalCityGame class now directly takes the root Tkinter window as an argument in its constructor, similar to CountryCapitalGame in Code 2.
+Timer with Threading:
+
+The start_timer method now uses a separate thread (threading.Thread) to handle the countdown and update the timer label without blocking the main game loop.
+Button Layout:
+
+Buttons are placed in a grid with 5 columns, similar to Code 2's layout (self.buttons_text.index(text) // 5).
+Message Feedback:
+
+A message_label is added to show "Correct Match!" or "Incorrect Match!" messages, along with changing the message color (green for correct, red for incorrect).
+Sound Effects:
+
+The play_sound method handles the playing of sound files for correct and incorrect matches.
+Game End Conditions:
+
+The game ends either when the timer runs out or when all pairs are correctly matched, with a pop-up message displaying the final result.
+
+
+
+
 Game Initialization and Setup: This code creates a graphical country-capital matching game using Tkinter, where players are prompted to match a capital city with its respective country. The main game structure includes a timer, scoring system, and sound effects for user feedback.
 
 Gameplay and Logic: Players select countries and capitals from randomized buttons; when a correct pair is chosen, points are awarded, and both buttons are disabled. Incorrect matches prompt an error message. The game ends when all pairs are matched or time runs out.
