@@ -1,31 +1,48 @@
 import tkinter as tk
-from random import shuffle
+from tkinter import messagebox
+import random
 import pygame
+import threading
 import time
 
-# Initialize Pygame
-pygame.init()
-
 class CapitalCityGame:
-    def __init__(self):
-        self.root = tk.Tk()
+    def __init__(self, root):
+        """
+        Initializes the game, sets up the Tkinter window, sound effects, and game state.
+        """
+        self.root = root
         self.root.title("Capital City Matching Game")
-        self.frame = tk.Frame(self.root)
-        self.frame.pack()
+        self.root.geometry("500x400")
 
-        self.country_capitals = {
+        # Initialize pygame mixer for sound
+        pygame.mixer.init()
+
+        # Game state variables
+        self.score = 0
+        self.click_count = 0
+        self.selected_country = ""
+        self.selected_capital = ""
+        self.timer_running = False
+        self.time_left = 600  # 10 minutes in seconds
+
+        # Country-Capital pairs
+        self.capital_dict = {
             "Argentina": "Buenos Aires",
             "Australia": "Canberra",
             "Austria": "Vienna",
             "Belgium": "Brussels",
-            "Brazil": "Brasilia",
+            "Brazil": "Brasília",
+            "Bulgaria": "Sofia",
             "Canada": "Ottawa",
             "Chile": "Santiago",
             "China": "Beijing",
             "Croatia": "Zagreb",
+            "Cuba": "Havana",
+            "Cyprus": "Nicosia",
             "Czech Republic": "Prague",
             "Denmark": "Copenhagen",
             "Egypt": "Cairo",
+            "Estonia": "Tallinn",
             "Finland": "Helsinki",
             "France": "Paris",
             "Germany": "Berlin",
@@ -38,18 +55,24 @@ class CapitalCityGame:
             "Israel": "Jerusalem",
             "Italy": "Rome",
             "Japan": "Tokyo",
+            "Latvia": "Riga",
+            "Lithuania": "Vilnius",
+            "Luxembourg": "Luxembourg City",
             "Malaysia": "Kuala Lumpur",
+            "Malta": "Valletta",
             "Mexico": "Mexico City",
             "Netherlands": "Amsterdam",
             "New Zealand": "Wellington",
             "Norway": "Oslo",
-            "Pakistan": "Islamabad",
             "Philippines": "Manila",
             "Poland": "Warsaw",
             "Portugal": "Lisbon",
             "Romania": "Bucharest",
             "Russia": "Moscow",
-            "Saudi Arabia": "Riyadh",
+            "Serbia": "Belgrade",
+            "Singapore": "Singapore",
+            "Slovakia": "Bratislava",
+            "Slovenia": "Ljubljana",
             "South Africa": "Pretoria",
             "South Korea": "Seoul",
             "Spain": "Madrid",
@@ -59,114 +82,152 @@ class CapitalCityGame:
             "Thailand": "Bangkok",
             "Turkey": "Ankara",
             "Ukraine": "Kyiv",
-            "United Arab Emirates": "Abu Dhabi",
             "United Kingdom": "London",
             "United States": "Washington, D.C.",
-            "Vatican City": "Vatican City",
+            "Vietnam": "Hanoi",
         }
 
-        self.countries = list(self.country_capitals.keys())
-        self.capitals = list(self.country_capitals.values())
+        self.items = list(self.capital_dict.items())
+        random.shuffle(self.items)
 
-        shuffle(self.countries)
-        shuffle(self.capitals)
+        # Split and shuffle for random placement of buttons
+        self.buttons_text = [item[0] for item in self.items] + [item[1] for item in self.items]
+        random.shuffle(self.buttons_text)
 
-        self.country_buttons = []
-        self.capital_buttons = []
+        # Create timer label
+        self.timer_label = tk.Label(self.root, text="Time left: 10:00", font=("Arial", 14))
+        self.timer_label.pack(pady=10)
 
-        for i, country in enumerate(self.countries):
-            button = tk.Button(self.frame, text=country, command=lambda country=country: self.select_country(country))
-            button.grid(row=i, column=0)
-            self.country_buttons.append(button)
+        # Display the score
+        self.score_label = tk.Label(self.root, text="Score: 0", font=("Arial", 14))
+        self.score_label.pack(pady=10)
 
-        for i, capital in enumerate(self.capitals):
-            button = tk.Button(self.frame, text=capital, command=lambda capital=capital: self.select_capital(capital))
-            button.grid(row=i, column=1)
-            self.capital_buttons.append(button)
+        # Message display
+        self.message_label = tk.Label(self.root, text="", font=("Arial", 12), fg="green")
+        self.message_label.pack(pady=10)
 
+        # Create button frame
+        self.button_frame = tk.Frame(self.root)
+        self.button_frame.pack(pady=10)
+
+        # Initialize buttons
+        self.buttons = {}
+        for i, text in enumerate(self.buttons_text):
+            btn = tk.Button(self.button_frame, text=text, font=("Arial", 10), width=15, command=lambda t=text: self.button_click(t))
+            btn.grid(row=i // 10, column=i % 10, padx=5, pady=5)
+            btn.config(state="disabled")  # Disable buttons initially
+            self.buttons[text] = btn
+
+        # Start game button
+        self.start_button = tk.Button(self.root, text="Start Game", font=("Arial", 14), command=self.start_game)
+        self.start_button.pack(pady=10)
+
+    def start_game(self):
+        """
+        Starts the game by enabling buttons and starting the timer.
+        """
+        for btn in self.buttons.values():
+            btn.config(state="normal")  # Enable buttons
+        self.start_button.config(state="disabled")  # Disable start button
+        self.timer_running = True
+        self.start_timer()
+
+    def start_timer(self):
+        """
+        Starts the countdown timer in a separate thread.
+        """
+        def countdown():
+            while self.time_left > 0 and self.timer_running:
+                mins, secs = divmod(self.time_left, 60)
+                time_str = f"{mins:02}:{secs:02}"
+                self.timer_label.config(text=f"Time left: {time_str}")
+                time.sleep(1)
+                self.time_left -= 1
+
+            if self.time_left == 0:
+                self.end_game("Game Over! Time's up.")
+
+        timer_thread = threading.Thread(target=countdown)
+        timer_thread.start()
+
+    def play_sound(self, file):
+        """
+        Plays the given sound file using pygame.
+        """
+        pygame.mixer.music.load(file)
+        pygame.mixer.music.play()
+
+    def button_click(self, text):
+        """
+        Handles the click event for buttons.
+        Updates the selected country or capital and checks for a match.
+        """
+        if text in self.capital_dict:
+            self.selected_country = text
+        elif text in self.capital_dict.values():
+            self.selected_capital = text
+
+        self.check_match()
+
+    def check_match(self):
+        """
+        Checks if the selected country and capital form a valid pair.
+        If correct, updates the score and disables the buttons.
+        """
+        if self.selected_country and self.selected_capital:
+            if self.capital_dict[self.selected_country] == self.selected_capital:
+                self.score += 1
+                self.score_label.config(text=f"Score: {self.score}")
+                self.message_label.config(text="Correct Match!", fg="green")
+                self.play_sound('success.mp3')  # Correct match sound
+
+                # Disable matched buttons
+                self.buttons[self.selected_country].config(state="disabled")
+                self.buttons[self.selected_capital].config(state="disabled")
+
+                # Check for game end
+                if self.score == len(self.capital_dict):
+                    self.end_game("Congratulations! You've matched all pairs!")
+
+            else:
+                self.message_label.config(text="Incorrect Match!", fg="red")
+                self.play_sound('error.mp3')  # Incorrect match sound
+
+            # Reset selections
+            self.selected_country = ""
+            self.selected_capital = ""
+
+    def end_game(self, message):
+        """
+        Ends the game, displaying the final message and stopping the timer.
+        """
+        self.timer_running = False
+        response = messagebox.askyesnocancel("Game Over", f"{message} Your final score is {self.score}.", yesno=True)
+        if response is True:
+            self.reset_game()
+        elif response is False:
+            self.root.destroy()
+
+    def reset_game(self):
+        """
+        Resets the game by re-enabling buttons, resetting score and timer, and shuffling buttons.
+        """
         self.score = 0
-        self.selected_country = None
-        self.selected_capital = None
-        self.matches = 0
-        self.time_left = 600  # 10 minutes in seconds
+        self.score_label.config(text="Score: 0")
+        self.time_left = 600
+        self.timer_label.config(text="Time left: 10:00")
+        self.message_label.config(text="")
+        for btn in self.buttons.values():
+            btn.config(state="normal")  # Enable buttons
+        self.start_button.config(state="normal")  # Enable start button
+        self.items = list(self.capital_dict.items())
+        random.shuffle(self.items)
+        self.buttons_text = [item[0] for item in self.items] + [item[1] for item in self.items]
+        random.shuffle(self.buttons_text)
+        for i, text in enumerate(self.buttons_text):
+            self.buttons[list(self.buttons.keys())[i]].config(text=text, state="disabled")
 
-        self.score_label = tk.Label(self.root, text="Score: 0")
-        self.score_label.pack()
-
-        self.time_label = tk.Label(self.root, text="Time: 10:00")
-        self.time_label.pack()
-
-        self.update_timer()
-
-    def select_country(self, country):
-        if self.selected_capital:
-            if self.country_capitals[country] == self.selected_capital:
-                self.score += 1
-                self.score_label['text'] = f"Score: {self.score}"
-                pygame.mixer.music.load('success.mp3')
-                pygame.mixer.music.play()
-                self.matches += 1
-                self.check_game_over()
-            else:
-                pygame.mixer.music.load('error.mp3')
-                pygame.mixer.music.play()
-            self.selected_capital = None
-            self.selected_country = None
-        else:
-            self.selected_country = country
-
-    def select_capital(self, capital):
-        if self.selected_country:
-            if self.country_capitals[self.selected_country] == capital:
-                self.score += 1
-                self.score_label['text'] = f"Score: {self.score}"
-                pygame.mixer.music.load('success.mp3')
-                pygame.mixer.music.play()
-                self.matches += 1
-                self.check_game_over()
-            else:
-                pygame.mixer.music.load('error.mp3')
-                pygame.mixer.music.play()
-            self.selected_capital = None
-            self.selected_country = None
-        else:
-            self.selected_capital = capital
-
-    def update_timer(self):
-        if self.time_left > 0:
-            minutes, seconds = divmod(self.time_left, 60)
-            self.time_label['text'] = f"Time: {minutes}:{seconds:02d}"
-            self.time_left -= 1
-            self.root.after(1000, self.update_timer)
-        else:
-            self.time_label['text'] = "Time's up!"
-            pygame.mixer.music.load('gameover.mp3')
-            pygame.mixer.music.play()
-            self.game_over()
-
-    def check_game_over(self):
-        if self.matches == len(self.countries):
-            self.root.after(3000, self.congratulations)
-
-    def congratulations(self):
-        for widget in self.root.winfo_children():
-            widget.destroy()
-        label = tk.Label(self.root, text="Congratulations! You matched all the countries and capitals!")
-        label.pack()
-        score_label = tk.Label(self.root, text=f"Your final score is: {self.score}")
-        score_label.pack()
-
-    def game_over(self):
-        for widget in self.root.winfo_children():
-            widget.destroy()
-        label = tk.Label(self.root, text="Game Over! Time's up!")
-        label.pack()
-        score_label = tk.Label(self.root, text=f"Your final score is: {self.score}")
-        score_label.pack()
-
-    def start(self):
-        self.root.mainloop()
-
-if __name__ == "__main__":
-    game = CapitalCityGame()
-    game.start()
+# Run the game
+root = tk.Tk()
+game = CapitalCityGame(root)
+root.mainloop()
