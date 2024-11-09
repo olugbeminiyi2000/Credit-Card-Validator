@@ -23,7 +23,7 @@ class CapitalCityGame:
         self.selected_country = ""
         self.selected_capital = ""
         self.timer_running = False
-        self.time_left = 600  # 10 minutes in seconds
+        self.time_left = 60  # 1 minute for testing
 
         # Country-Capital pairs
         self.capital_dict = {
@@ -70,7 +70,6 @@ class CapitalCityGame:
             "Romania": "Bucharest",
             "Russia": "Moscow",
             "Serbia": "Belgrade",
-            "Singapore": "Singapore",
             "Slovakia": "Bratislava",
             "Slovenia": "Ljubljana",
             "South Africa": "Pretoria",
@@ -95,7 +94,7 @@ class CapitalCityGame:
         random.shuffle(self.buttons_text)
 
         # Create timer label
-        self.timer_label = tk.Label(self.root, text="Time left: 10:00", font=("Arial", 14))
+        self.timer_label = tk.Label(self.root, text="Time left: 01:00", font=("Arial", 14))
         self.timer_label.pack(pady=10)
 
         # Display the score
@@ -178,6 +177,12 @@ class CapitalCityGame:
                 self.message_label.config(text="Correct Match!", fg="green")
                 self.play_sound('success.mp3')  # Correct match sound
 
+                # Change button color briefly
+                self.buttons[self.selected_country].config(bg="#90EE90")
+                self.buttons[self.selected_capital].config(bg="#90EE90")
+                self.root.update()
+                self.root.after(500, lambda: self.reset_button_color(self.selected_country, self.selected_capital))
+
                 # Disable matched buttons
                 self.buttons[self.selected_country].config(state="disabled")
                 self.buttons[self.selected_capital].config(state="disabled")
@@ -190,15 +195,30 @@ class CapitalCityGame:
                 self.message_label.config(text="Incorrect Match!", fg="red")
                 self.play_sound('error.mp3')  # Incorrect match sound
 
+                # Change button color briefly
+                self.buttons[self.selected_country].config(bg="red")
+                self.buttons[self.selected_capital].config(bg="red")
+                self.root.update()
+                self.root.after(500, lambda: self.reset_button_color(self.selected_country, self.selected_capital))
+
             # Reset selections
             self.selected_country = ""
             self.selected_capital = ""
+
+    def reset_button_color(self, country, capital):
+        self.buttons[country].config(bg="SystemButtonFace")
+        self.buttons[capital].config(bg="SystemButtonFace")
 
     def end_game(self, message):
         """
         Ends the game, displaying the final message and stopping the timer.
         """
         self.timer_running = False
+
+        # Disable all buttons (start, and randomized)
+        for btn in self.buttons.values():
+            btn.config(state="disabled")
+
         response = messagebox.askyesnocancel("Game Over", f"{message} Do you want to play again?")
         if response is None:
             self.root.destroy()
@@ -207,9 +227,9 @@ class CapitalCityGame:
 
     def reset_game(self):
         self.score = 0
-        self.time_left = 600
+        self.time_left = 60  # 1 minute for testing
         self.score_label.config(text="Score: 0")
-        self.timer_label.config(text="Time left: 10:00")
+        self.timer_label.config(text="Time left: 01:00")
         self.message_label.config(text="")
         self.start_button.config(state="normal")
         for btn in self.buttons.values():
