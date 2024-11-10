@@ -24,6 +24,7 @@ class CapitalCityGame:
         self.selected_capital = ""
         self.timer_running = False
         self.time_left = 600  # 10 minutes for testing
+        self.game_mode = ""
 
         # Country-Capital pairs
         self.capital_dict = {
@@ -121,6 +122,18 @@ class CapitalCityGame:
         self.start_button = tk.Button(self.root, text="Start Game", font=("Arial", 14), command=self.start_game)
         self.start_button.pack(pady=10)
 
+        # Ask for game mode
+        self.game_mode_window = tk.Toplevel(self.root)
+        self.game_mode_window.title("Select Game Mode")
+        tk.Label(self.game_mode_window, text="Select Game Mode:", font=("Arial", 14)).pack(pady=10)
+        tk.Button(self.game_mode_window, text="Regular", font=("Arial", 14), command=lambda: self.set_game_mode("Regular")).pack(pady=10)
+        tk.Button(self.game_mode_window, text="Advanced", font=("Arial", 14), command=lambda: self.set_game_mode("Advanced")).pack(pady=10)
+
+    def set_game_mode(self, mode):
+        self.game_mode = mode
+        self.game_mode_window.destroy()
+        self.start_button.config(state="normal")
+
     def start_game(self):
         self.start_button.config(state="disabled")
         for btn in self.buttons.values():
@@ -190,14 +203,17 @@ class CapitalCityGame:
                     self.end_game("Congratulations! You've matched all pairs!")
 
             else:
-                self.score -= 1
-                self.score_label.config(text=f"Score: {self.score}")
                 self.message_label.config(text="Incorrect Match!", fg="red")
                 self.play_sound('error.mp3')  # Incorrect match sound
 
                 # Change button color briefly
                 self.buttons[self.selected_country].config(bg="red")
                 self.buttons[self.selected_capital].config(bg="red")
+
+                # Deduct points for incorrect match in Advanced mode
+                if self.game_mode == "Advanced":
+                    self.score -= 1
+                    self.score_label.config(text=f"Score: {self.score}")
             # Reset selections after a delay
             self.root.after(500, self.reset_button_color)
 
