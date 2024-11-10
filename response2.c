@@ -24,6 +24,7 @@ class CapitalCityGame:
         self.selected_capital = ""
         self.timer_running = False
         self.time_left = 600  # 10 minutes for testing
+        self.game_mode = ""
 
         # Country-Capital pairs
         self.capital_dict = {
@@ -93,6 +94,19 @@ class CapitalCityGame:
         self.buttons_text = [item[0] for item in self.items] + [item[1] for item in self.items]
         random.shuffle(self.buttons_text)
 
+        self.select_game_mode()
+
+    def select_game_mode(self):
+        self.game_mode = messagebox.askyesnocancel("Select Game Mode", "Do you want to play in Advanced mode?")
+        if self.game_mode is None:
+            self.root.destroy()
+        elif self.game_mode:
+            self.game_mode = "Advanced"
+        else:
+            self.game_mode = "Regular"
+        self.create_widgets()
+
+    def create_widgets(self):
         # Create timer label
         self.timer_label = tk.Label(self.root, text="Time left: 10:00", font=("Arial", 14))
         self.timer_label.pack(pady=10)
@@ -190,10 +204,11 @@ class CapitalCityGame:
                     self.end_game("Congratulations! You've matched all pairs!")
 
             else:
-                self.score -= 1
-                self.score_label.config(text=f"Score: {self.score}")
                 self.message_label.config(text="Incorrect Match!", fg="red")
                 self.play_sound('error.mp3')  # Incorrect match sound
+                if self.game_mode == "Advanced":
+                    self.score -= 1
+                    self.score_label.config(text=f"Score: {self.score}")
 
                 # Change button color briefly
                 self.buttons[self.selected_country].config(bg="red")
