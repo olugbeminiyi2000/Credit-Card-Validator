@@ -1,5 +1,3 @@
-Below is the modified code with the additional functionality of changing the background color of the buttons when a match is found or not.
-```python
 import tkinter as tk
 from tkinter import messagebox
 import random
@@ -25,7 +23,7 @@ class CapitalCityGame:
         self.selected_country = ""
         self.selected_capital = ""
         self.timer_running = False
-        self.time_left = 60  # 1 minute for testing
+        self.time_left = 600  # 10 minutes for testing
 
         # Country-Capital pairs
         self.capital_dict = {
@@ -96,7 +94,7 @@ class CapitalCityGame:
         random.shuffle(self.buttons_text)
 
         # Create timer label
-        self.timer_label = tk.Label(self.root, text="Time left: 01:00", font=("Arial", 14))
+        self.timer_label = tk.Label(self.root, text="Time left: 10:00", font=("Arial", 14))
         self.timer_label.pack(pady=10)
 
         # Display the score
@@ -182,8 +180,6 @@ class CapitalCityGame:
                 # Change button color briefly
                 self.buttons[self.selected_country].config(bg="#90EE90")
                 self.buttons[self.selected_capital].config(bg="#90EE90")
-                self.root.update()
-                self.root.after(500, lambda: self.reset_button_color(self.selected_country, self.selected_capital))
 
                 # Disable matched buttons
                 self.buttons[self.selected_country].config(state="disabled")
@@ -194,22 +190,26 @@ class CapitalCityGame:
                     self.end_game("Congratulations! You've matched all pairs!")
 
             else:
+                self.score -= 1
+                self.score_label.config(text=f"Score: {self.score}")
                 self.message_label.config(text="Incorrect Match!", fg="red")
                 self.play_sound('error.mp3')  # Incorrect match sound
 
                 # Change button color briefly
                 self.buttons[self.selected_country].config(bg="red")
                 self.buttons[self.selected_capital].config(bg="red")
-                self.root.update()
-                self.root.after(500, lambda: self.reset_button_color(self.selected_country, self.selected_capital))
+            # Reset selections after a delay
+            self.root.after(500, self.reset_button_color)
 
-            # Reset selections
-            self.selected_country = ""
-            self.selected_capital = ""
-
-    def reset_button_color(self, country, capital):
-        self.buttons[country].config(bg="SystemButtonFace")
-        self.buttons[capital].config(bg="SystemButtonFace")
+    def reset_button_color(self):
+        # Reset selections and border colors
+        self.buttons[self.selected_country].config(bg="SystemButtonFace")
+        self.buttons[self.selected_capital].config(bg="SystemButtonFace")
+        # Reset selections
+        self.selected_country = ""
+        self.selected_capital = ""
+        for btn in self.buttons.values():
+            btn.config(highlightbackground="black", highlightcolor="black")
 
     def end_game(self, message):
         """
@@ -229,9 +229,9 @@ class CapitalCityGame:
 
     def reset_game(self):
         self.score = 0
-        self.time_left = 60  # 1 minute for testing
+        self.time_left = 600  # 10 minutes for testing
         self.score_label.config(text="Score: 0")
-        self.timer_label.config(text="Time left: 01:00")
+        self.timer_label.config(text="Time left: 10:00")
         self.message_label.config(text="")
         self.start_button.config(state="normal")
         for btn in self.buttons.values():
@@ -247,11 +247,3 @@ class CapitalCityGame:
 root = tk.Tk()
 game = CapitalCityGame(root)
 root.mainloop()
-```
-Below is an explanation of the modifications made to the code:
-
-* The check_match method has been updated to change the background color of the buttons when a match is found or not. The color is changed briefly and then reset back to the default color using the after method.
-
-* A new method reset_button_color has been added to reset the background color of the buttons.
-
-* The game now provides visual feedback to the user when a match is found or not, making it more engaging and user-friendly.
