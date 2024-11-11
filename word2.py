@@ -1,5 +1,6 @@
-#!/usr/bin/env bash
+I'm currently working on a network operations team where we manage and automate various system tasks. One of our critical scripts, written by a colleague who specializes in Bash scripting, is designed to automate the execution of a Ruby script that processes log data using regular expressions. Unfortunately, my colleague is on an extended leave and isn't reachable at the moment. Our manager has asked me to ensure that this script is free of bugs and functions correctly across all environments. Since I'm not very familiar with Bash scripting, I was hoping you could assist me by reviewing the code for any potential errors or issues that might prevent it from running as expected. Could you please help me by checking the script for bugs or any potential problems? Here is the code:
 
+```bash
 get_file_name() {
 	read -p "Enter a file_name: " -r FILENAME
 	if [ -n "$FILENAME" ]
@@ -68,3 +69,4 @@ log_regex_automation() {
 	done
 }
 log_regex_automation
+```
