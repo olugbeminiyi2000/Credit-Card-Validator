@@ -1,10 +1,315 @@
-Instruction Following: 2 - Minor Issue
-While Response 1 attempts to incorporate the game mode selection, it doesn't fully follow the instruction to first show the dialog box for selecting the mode before displaying the game. In Response 1, both the game mode selection dialog and the main game window are displayed at the same time, which was not the desired flow as per the prompt. This results in a minor issue in following the instructions accurately.
-Accuracy: 1 - No Issue
-Response 1 appears to be free of bugs and inaccuracies. The code is executable, and there are no obvious logical errors or crashes. It correctly updates the score, handles button clicks, and processes the game modes. Additionally, edge cases like incorrect matches in "Advanced" mode are handled well (e.g., points are deducted).
-Optimality and Efficiency: 1 - No Issue
-The code is structured well, and there is minimal repetition. Functions like reset_button_color and play_sound are reusable and logically separated. The use of threading for the timer and handling of button states demonstrates a good understanding of game flow. No unnecessary complexity is introduced.
-Presentation: 1 - No Issue
-The code is organized, and comments are used appropriately to describe each method's purpose. The game logic and UI elements are cleanly separated, and the class-based structure is easy to follow. The interface uses consistent fonts, sizes, and layouts, providing a smooth user experience.
-Up-to-Date: 1 - Up-To-Date
-The libraries used (Tkinter, pygame, threading, etc.) are all maintained and currently executable. The code doesn’t use deprecated methods or functions, and it adheres to modern Python standards.
+#!/usr/bin/env ruby
+if ARGV.length == 2
+  if ARGV[1] == "ipaddress"
+    begin
+      file = File.open(ARGV[0], 'r')
+      file_contents = file.read
+      ipaddresses = file_contents.scan(/(?<ipaddresses>^\d\S+)/)
+      puts "Do you want to view or save? "
+      response = gets.chomp
+      if response == "save"
+        puts "Enter a file name: "
+        filename = gets.chomp
+        File.open(filename, 'w') do |file|
+          file.puts ipaddresses
+        end
+      elsif response == "view"
+        puts ipaddresses
+      else
+        puts ipaddresses
+      end
+    rescue Errno::ENOENT => e
+      # Handle case where file does not exist
+      puts "An error occured: #{e}"
+    rescue Errno::EACCES => e
+      # Handle case where file doesn't have permission
+      puts "An error occurred: #{e}"
+    rescue => e
+      # Handles other exceptions that may occur
+      puts "An error occurred: #{e}"
+    ensure
+      # ensures file closing
+      file.close if file
+    end
+  elsif ARGV[1] == "timestamp"
+    begin
+      file = File.open(ARGV[0], 'r')
+      file_contents = file.read
+      timestamps = file_contents.scan(/(?<timestamp>.{26})(?<=\d)]/)
+      puts "Do you want to view or save? "
+      response = gets.chomp
+      if response == "save"
+        puts "Enter a file name: "
+        filename = gets.chomp
+        File.open(filename, 'w') do |file|
+          file.puts timestamps
+        end
+      elsif response == "view"
+        puts timestamps
+      end
+    rescue Errno::ENOENT => e
+      # Handle case where file does not exist
+      puts "An error occured: #{e}"
+    rescue Errno::EACCES => e
+      # Handle case where file doesn't have permission
+      puts "An error occurred: #{e}"
+    rescue => e
+      # Handles other exceptions that may occur
+      puts "An error occurred: #{e}"
+    ensure
+      file.close if file
+    end
+  elsif ARGV[1] == "httpmethod"
+    begin
+      file = File.open(ARGV[0], 'r')
+      file_contents = file.read
+      httpmethods = file_contents.scan(/"(?=\w)(?<httpmethod>\w+.*\w)"/)
+      puts "Do you want to view or save? "
+      response = gets.chomp
+      if response == "save"
+        puts "Enter a file name: "
+        filename = gets.chomp
+        File.open(filename, 'w') do |file|
+          file.puts httpmethods
+        end
+      elsif response == "view"
+        puts httpmethods
+      else
+        puts httpmethods
+      end
+    rescue Errno::ENOENT => e
+      # Handle case where file does not exist
+      puts "An error occured: #{e}"
+    rescue Errno::EACCES => e
+      # Handle case where file doesn't have permission
+      puts "An error occurred: #{e}"
+    rescue => e
+      # Handles other exceptions that may occur
+      puts "An error occurred: #{e}"
+    ensure
+      file.close if file
+    end
+  elsif ARGV[1] == "statuscode"
+    begin
+      file = File.open(ARGV[0], 'r')
+      file_contents = file.read
+      statuscodes = file_contents.scan(/(?<=".)(?<statuscode>\d+)/)
+      puts "Do you want to view or save? "
+      response = gets.chomp
+      if response == "save"
+        puts "Enter a file name: "
+        filename = gets.chomp
+        File.open(filename, 'w') do |file|
+          file.puts statuscodes
+        end
+      elsif response == "view"
+        puts statuscodes
+      else
+        puts statuscodes
+      end
+    rescue Errno::ENOENT => e
+      # Handle case where file does not exist
+      puts "An error occured: #{e}"
+    rescue Errno::EACCES => e
+      # Handle case where file doesn't have permission
+      puts "An error occurred: #{e}"
+    rescue => e
+      # Handles other exceptions that may occur
+      puts "An error occurred: #{e}"
+    ensure
+      file.close if file
+    end
+  elsif ARGV[1] == "responsesize"
+    begin
+      file = File.open(ARGV[0], 'r')
+      file_contents = file.read
+      response_sizes = file_contents.scan(/(?<response-size>\d+$)/)
+      puts "Do you want to view or save? "
+      response = gets.chomp
+      if response == "save"
+        puts "Enter a file name: "
+        filename = gets.chomp
+        File.open(filename, 'w') do |file|
+          file.puts response_sizes
+        end
+      elsif response == "view"
+        puts response_sizes
+      else
+        puts response_sizes
+      end
+    rescue Errno::ENOENT => e
+      # Handle case where file does not exist
+      puts "An error occured: #{e}"
+    rescue Errno::EACCES => e
+      # Handle case where file doesn't have permission
+      puts "An error occurred: #{e}"
+    rescue => e
+      # Handles other exceptions that may occur
+      puts "An error occurred: #{e}"
+    ensure
+      file.close if file
+  else
+    puts "Log Data #{ARGV[1]} doesn't exist!!!"
+  end
+else
+  # Enter the file name with its extension
+  puts "Enter file name: "
+  file_name = gets.chomp
+  puts "Which type of information would you like to extract?"
+  puts "ipaddress\ntimestamp\nhttpmethod\nstatuscode\nresponsesize"
+  puts "Enter one of the options above: "
+  log_data = gets.chomp
+  if log_data == "ipaddress"
+    begin
+      file = File.open(file_name, 'r')
+      file_contents = file.read
+      ipaddresses = file_contents.scan(/(?<ipaddresses>^\d\S+)/)
+      puts "Do you want to view or save? "
+      response = gets.chomp
+      if response == "save"
+        puts "Enter a file name: "
+        filename = gets.chomp
+        File.open(filename, 'w') do |file|
+          file.puts ipaddresses
+        end
+      elsif response == "view"
+        puts ipaddresses
+      else
+        puts ipaddresses
+      end
+    rescue Errno::ENOENT => e
+      # Handle case where file does not exist
+      puts "An error occured: #{e}"
+    rescue Errno::EACCES => e
+      # Handle case where file doesn't have permission
+      puts "An error occurred: #{e}"
+    rescue => e
+      # Handles other exceptions that may occur
+      puts "An error occurred: #{e}"
+    ensure
+      file.close if file
+    end
+  elsif log_data == "timestamp"
+    begin
+      file = File.open(file_name, 'r')
+      file_contents = file.read
+      timestamps = file_contents.scan(/(?<timestamp>.{26})(?<=\d)]/)
+      puts "Do you want to view or save? "
+      response = gets.chomp
+      if response == "save"
+        puts "Enter a file name: "
+        filename = gets.chomp
+        File.open(filename, 'w') do |file|
+          file.puts timestamps
+        end
+      elsif response == "view"
+        puts timestamps
+      else
+        puts timestamps
+      end
+    rescue Errno::ENOENT => e
+      # Handle case where file does not exist
+      puts "An error occured: #{e}"
+    rescue Errno::EACCES => e
+      # Handle case where file doesn't have permission
+      puts "An error occurred: #{e}"
+    rescue => e
+      # Handles other exceptions that may occur
+      puts "An error occurred: #{e}"
+    ensure
+      file.close if file
+    end
+  elsif log_data == "httpmethod"
+    begin
+      file = File.open(file_name, 'r')
+      file_contents = file.read
+      httpmethods = file_contents.scan(/"(?=\w)(?<httpmethod>\w+.*\w)"/)
+      puts "Do you want to view or save? "
+      response = gets.chomp
+      if response == "save"
+        puts "Enter a file name: "
+        filename = gets.chomp
+        File.open(filename, 'w') do |file|
+          file.puts httpmethods
+        end
+      elsif response == "view"
+        puts httpmethods
+      else
+        puts httpmethods
+      end
+    rescue Errno::ENOENT => e
+      # Handle case where file does not exist
+      puts "An error occured: #{e}"
+    rescue Errno::EACCES => e
+      # Handle case where file doesn't have permission
+      puts "An error occurred: #{e}"
+    rescue => e
+      # Handles other exceptions that may occur
+      puts "An error occurred: #{e}"
+    ensure
+      file.close if close
+    end
+  elsif log_data == "statuscode"
+    begin
+      file = File.open(file_name, 'r')
+      file_contents = file.read
+      statuscodes = file_contents.scan(/(?<=".)(?<statuscode>\d+)/)
+      puts "Do you want to view or save? "
+      response = gets.chomp
+      if response == "save"
+        puts "Enter a file name: "
+        filename = gets.chomp
+        File.open(filename, 'w') do |file|
+          file.puts statuscodes
+        end
+      elsif response == "view"
+        puts statuscodes
+      else
+        puts statuscodes
+      end
+    rescue Errno::ENOENT => e
+      # Handle case where file does not exist
+      puts "An error occured: #{e}"
+    rescue Errno::EACCES => e
+      # Handle case where file doesn't have permission
+      puts "An error occurred: #{e}"
+    rescue => e
+      # Handles other exceptions that may occur
+      puts "An error occurred: #{e}"
+    ensure
+      file.close if close
+    end
+  elsif log_data == "responsesize"
+    begin
+      file = File.open(file_name, 'r')
+      file_contents = file.read
+      response_sizes = file_contents.scan(/(?<response-size>\d+$)/)
+      puts "Do you want to view or save? "
+      response = gets.chomp
+      if response == "save"
+        puts "Enter a file name: "
+        filename = gets.chomp
+        File.open(filename, 'w') do |file|
+          file.puts response_sizes
+        end
+      elsif response == "view"
+        puts response_sizes
+      else
+        puts response_sizes
+      end
+    rescue Errno::ENOENT => e
+      # Handle case where file does not exist
+      puts "An error occured: #{e}"
+    rescue Errno::EACCES => e
+      # Handle case where file doesn't have permission
+      puts "An error occurred: #{e}"
+    rescue => e
+      # Handles other exceptions that may occur
+      puts "An error occurred: #{e}"
+    ensure
+      file.close if file
+    end
+  else
+    puts "Log Data #{log_data} doesn't exist!!!"
+  end
+end
