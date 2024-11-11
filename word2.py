@@ -1,17 +1,215 @@
-Let's evaluate Response 2 using the provided guidelines:
+#!/usr/bin/env python3
 
-1. Instruction Following
-Score: 5/5
-Explanation: The response successfully implements the required features, including the "Advanced" or "Regular" mode selection dialog box at the start. The select_game_mode() method asks the user to choose a game mode, and based on the selection, the game proceeds with the appropriate mode. This meets the instruction's requirement of adding the mode selection functionality and starting the main game afterward.
-2. Accuracy
-Score: 5/5
-Explanation: The code accurately implements the requested logic for the mode selection and game functionality. The select_game_mode() method captures the user's choice and proceeds with the corresponding mode, making sure the main game functions as expected. The shuffle mechanism for the country-capital pairs and buttons works as intended, and the timer and score display operate properly.
-3. Optimality and Efficiency
-Score: 4/5
-Explanation: The code is well-optimized for clarity, and the game flow is effective. The timer runs in a separate thread to avoid freezing the main UI, and the game reset mechanism is efficient with button reconfiguration after each round. However, the button grid layout might not scale perfectly for all screen sizes, as the code hardcodes a 10-column layout. This could lead to some inefficiency when handling a more dynamic button grid or different window sizes.
-4. Presentation
-Score: 4/5
-Explanation: The game has a clean layout, and the flow from the mode selection to the game is intuitive. The inclusion of labels for the score and timer adds to the user experience. However, the UI could benefit from some additional design refinement, such as a better visual distinction between buttons and a more attractive way to indicate the game state (e.g., different color schemes for the advanced mode).
-5. Up-to-Date Status
-Score: 5/5
-Explanation: The code uses up-to-date methods for integrating Tkinter, pygame, and threading, ensuring the game runs efficiently with the latest practices in GUI and threading operations. The use of pygame.mixer for sound and threading for the timer is appropriate for the task and avoids UI freezes.
+import sys
+import re
+
+if len(sys.argv) == 3:
+    if sys.argv[2] == "ipaddress":
+        try:
+            with open(sys.argv[1], 'r') as file:
+                file_contents = file.read()
+            ipaddresses = re.findall(r'(?P<ipaddresses>^\d\S+)', file_contents, re.MULTILINE)
+            response = input("Do you want to view or save? ").strip()
+            if response.lower() == "save":
+                filename = input("Enter a file name: ").strip()
+                with open(filename, 'w') as outfile:
+                    outfile.write('\n'.join(ipaddresses))
+            elif response.lower() == "view":
+                print('\n'.join(ipaddresses))
+            else:
+                print('\n'.join(ipaddresses))
+        except FileNotFoundError as e:
+            print(f"An error occurred: {e}")
+        except PermissionError as e:
+            print(f"An error occurred: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    elif sys.argv[2] == "timestamp":
+        try:
+            with open(sys.argv[1], 'r') as file:
+                file_contents = file.read()
+            timestamps = re.findall(r'(?P<timestamp>.{26})(?<=\d)\]', file_contents)
+            response = input("Do you want to view or save? ").strip()
+            if response.lower() == "save":
+                filename = input("Enter a file name: ").strip()
+                with open(filename, 'w') as outfile:
+                    outfile.write('\n'.join(timestamps))
+            elif response.lower() == "view":
+                print('\n'.join(timestamps))
+            else:
+                print('\n'.join(timestamps))
+        except FileNotFoundError as e:
+            print(f"An error occurred: {e}")
+        except PermissionError as e:
+            print(f"An error occurred: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    elif sys.argv[2] == "httpmethod":
+        try:
+            with open(sys.argv[1], 'r') as file:
+                file_contents = file.read()
+            httpmethods = re.findall(r'"(?=\w)(?P<httpmethod>\w+.*?\w)"', file_contents)
+            response = input("Do you want to view or save? ").strip()
+            if response.lower() == "save":
+                filename = input("Enter a file name: ").strip()
+                with open(filename, 'w') as outfile:
+                    outfile.write('\n'.join(httpmethods))
+            elif response.lower() == "view":
+                print('\n'.join(httpmethods))
+            else:
+                print('\n'.join(httpmethods))
+        except FileNotFoundError as e:
+            print(f"An error occurred: {e}")
+        except PermissionError as e:
+            print(f"An error occurred: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    elif sys.argv[2] == "statuscode":
+        try:
+            with open(sys.argv[1], 'r') as file:
+                file_contents = file.read()
+            statuscodes = re.findall(r'(?<=".\s)(?P<statuscode>\d+)', file_contents)
+            response = input("Do you want to view or save? ").strip()
+            if response.lower() == "save":
+                filename = input("Enter a file name: ").strip()
+                with open(filename, 'w') as outfile:
+                    outfile.write('\n'.join(statuscodes))
+            elif response.lower() == "view":
+                print('\n'.join(statuscodes))
+            else:
+                print('\n'.join(statuscodes))
+        except FileNotFoundError as e:
+            print(f"An error occurred: {e}")
+        except PermissionError as e:
+            print(f"An error occurred: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    elif sys.argv[2] == "responsesize":
+        try:
+            with open(sys.argv[1], 'r') as file:
+                file_contents = file.read()
+            response_sizes = re.findall(r'(?P<response_size>\d+$)', file_contents, re.MULTILINE)
+            response = input("Do you want to view or save? ").strip()
+            if response.lower() == "save":
+                filename = input("Enter a file name: ").strip()
+                with open(filename, 'w') as outfile:
+                    outfile.write('\n'.join(response_sizes))
+            elif response.lower() == "view":
+                print('\n'.join(response_sizes))
+            else:
+                print('\n'.join(response_sizes))
+        except FileNotFoundError as e:
+            print(f"An error occurred: {e}")
+        except PermissionError as e:
+            print(f"An error occurred: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    else:
+        print(f"Log Data '{sys.argv[2]}' doesn't exist!!!")
+else:
+    file_name = input("Enter file name: ").strip()
+    print("Which type of information would you like to extract?")
+    print("ipaddress\ntimestamp\nhttpmethod\nstatuscode\nresponsesize")
+    log_data = input("Enter one of the options above: ").strip()
+    if log_data == "ipaddress":
+        try:
+            with open(file_name, 'r') as file:
+                file_contents = file.read()
+            ipaddresses = re.findall(r'(?P<ipaddresses>^\d\S+)', file_contents, re.MULTILINE)
+            response = input("Do you want to view or save? ").strip()
+            if response.lower() == "save":
+                filename = input("Enter a file name: ").strip()
+                with open(filename, 'w') as outfile:
+                    outfile.write('\n'.join(ipaddresses))
+            elif response.lower() == "view":
+                print('\n'.join(ipaddresses))
+            else:
+                print('\n'.join(ipaddresses))
+        except FileNotFoundError as e:
+            print(f"An error occurred: {e}")
+        except PermissionError as e:
+            print(f"An error occurred: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    elif log_data == "timestamp":
+        try:
+            with open(file_name, 'r') as file:
+                file_contents = file.read()
+            timestamps = re.findall(r'(?P<timestamp>.{26})(?<=\d)\]', file_contents)
+            response = input("Do you want to view or save? ").strip()
+            if response.lower() == "save":
+                filename = input("Enter a file name: ").strip()
+                with open(filename, 'w') as outfile:
+                    outfile.write('\n'.join(timestamps))
+            elif response.lower() == "view":
+                print('\n'.join(timestamps))
+            else:
+                print('\n'.join(timestamps))
+        except FileNotFoundError as e:
+            print(f"An error occurred: {e}")
+        except PermissionError as e:
+            print(f"An error occurred: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    elif log_data == "httpmethod":
+        try:
+            with open(file_name, 'r') as file:
+                file_contents = file.read()
+            httpmethods = re.findall(r'"(?=\w)(?P<httpmethod>\w+.*?\w)"', file_contents)
+            response = input("Do you want to view or save? ").strip()
+            if response.lower() == "save":
+                filename = input("Enter a file name: ").strip()
+                with open(filename, 'w') as outfile:
+                    outfile.write('\n'.join(httpmethods))
+            elif response.lower() == "view":
+                print('\n'.join(httpmethods))
+            else:
+                print('\n'.join(httpmethods))
+        except FileNotFoundError as e:
+            print(f"An error occurred: {e}")
+        except PermissionError as e:
+            print(f"An error occurred: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    elif log_data == "statuscode":
+        try:
+            with open(file_name, 'r') as file:
+                file_contents = file.read()
+            statuscodes = re.findall(r'(?<=".\s)(?P<statuscode>\d+)', file_contents)
+            response = input("Do you want to view or save? ").strip()
+            if response.lower() == "save":
+                filename = input("Enter a file name: ").strip()
+                with open(filename, 'w') as outfile:
+                    outfile.write('\n'.join(statuscodes))
+            elif response.lower() == "view":
+                print('\n'.join(statuscodes))
+            else:
+                print('\n'.join(statuscodes))
+        except FileNotFoundError as e:
+            print(f"An error occurred: {e}")
+        except PermissionError as e:
+            print(f"An error occurred: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    elif log_data == "responsesize":
+        try:
+            with open(file_name, 'r') as file:
+                file_contents = file.read()
+            response_sizes = re.findall(r'(?P<response_size>\d+$)', file_contents, re.MULTILINE)
+            response = input("Do you want to view or save? ").strip()
+            if response.lower() == "save":
+                filename = input("Enter a file name: ").strip()
+                with open(filename, 'w') as outfile:
+                    outfile.write('\n'.join(response_sizes))
+            elif response.lower() == "view":
+                print('\n'.join(response_sizes))
+            else:
+                print('\n'.join(response_sizes))
+        except FileNotFoundError as e:
+            print(f"An error occurred: {e}")
+        except PermissionError as e:
+            print(f"An error occurred: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    else:
+        print(f"Log Data '{log_data}' doesn't exist!!!")
