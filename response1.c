@@ -1,5 +1,10 @@
+```javascript
 function describePerson(person) {
-  return 'Name: ' + person.name + 
-         ', Age: ' + person.age +
-         ', Hobbies: ' + person.hobbies.join(', ');
+  const descriptionParts = [
+    'Name: ', person.name,
+    ', Age: ', person.age,
+    ', Hobbies: ', person.hobbies.join(', ')
+  ];
+  return descriptionParts.join('');
 }
+```
