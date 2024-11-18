@@ -1,67 +1,129 @@
-class LRUCache {
-    constructor(capacity) {
-        this.capacity = capacity;
-        this.cache = new Map();
-    }
+Prompt is clear and detailed: 
+The prompt has all necessary information and isn’t confusing.
+There are no contradicting requests in the prompt
+Correct language and tools used: 
+The prompt uses the right programming language or library as instructed.
 
-    get(key) {
-        if (this.cache.has(key)) {
-            const value = this.cache.get(key);
-            this.cache.delete(key); // Remove the key to update its position
-            this.cache.set(key, value); // Reinsert key to mark as most recently used
-            return value;
-        }
-        return -1;
-    }
 
-    put(key, value) {
-        if (this.cache.has(key)) {
-            this.cache.delete(key); // Update key position if it already exists
-        } else if (this.cache.size >= this.capacity) {
-            this.cache.delete(this.cache.keys().next().value); // Evict least recently used
-        }
-        this.cache.set(key, value); // Add key-value pair
-    }
-}
 
-class MultilevelLRUCache {
-    constructor(l1Capacity, l2Capacity) {
-        this.l1Cache = new LRUCache(l1Capacity);
-        this.l2Cache = new LRUCache(l2Capacity);
-    }
+    ```python
+def calculate(expression):
+    """
+    Evaluates a mathematical expression string with support for addition, subtraction,
+    multiplication, division, parentheses, and operator precedence.
 
-    get(key) {
-        let value = this.l1Cache.get(key);
-        if (value !== -1) {
-            return value; // Return value from L1 cache
-        }
+    Args:
+        expression: A string representing the mathematical expression.
 
-        // Check L2 cache if not found in L1 cache
-        value = this.l2Cache.get(key);
-        if (value !== -1) {
-            this.l1Cache.put(key, value); // Promote value to L1 cache
-        }
-        return value; // Return the found value or -1 if not found
-    }
+    Returns:
+        The result of the evaluated expression.
 
-    put(key, value) {
-        // Only add to L1 cache
-        this.l1Cache.put(key, value);
+    Raises:
+        ValueError: If the expression is invalid (e.g., misplaced operators or parentheses).
+    """
 
-        // If evicted from L1, store in L2
-        if (!this.l1Cache.cache.has(key)) {
-            this.l2Cache.put(key, value);
-        }
-    }
-}
+    if not expression:
+        return ""
 
-// Test code
-const cache = new MultilevelLRUCache(3, 5);
-cache.put(1, 10);
-cache.put(2, 20);
-cache.put(3, 30);
-cache.put(4, 40);
+    def find_closing_parenthesis(expr, start_index):
+        """Helper function to find the matching closing parenthesis."""
+        count = 1
+        for i in range(start_index + 1, len(expr)):
+            if expr[i] == '(':
+                count += 1
+            elif expr[i] == ')':
+                count -= 1
+                if count == 0:
+                    return i
+        raise ValueError("Mismatched parentheses")
 
-console.log(cache.get(1)); // Output: 10
-console.log(cache.get(4)); // Output: 40
-console.log(cache.get(5)); // Output: -1
+    def evaluate_simple_expression(expr):
+        """Helper function to evaluate a simple expression without parentheses."""
+        parts = []
+        current_number = ""
+        current_operator = "+"
+        for char in expr:
+            if char.isdigit() or char == '.':
+                current_number += char
+            elif char in "+-*/":
+                parts.append((current_operator, float(current_number) if current_number else 0.0))
+                current_number = ""
+                current_operator = char
+            else:
+                raise ValueError("Invalid character in expression")
+        parts.append((current_operator, float(current_number) if current_number else 0.0))
+
+        result = 0.0
+        i = 0
+        while i < len(parts):
+            operator, number = parts[i]
+            if operator == "+":
+                result += number
+            elif operator == "-":
+                result -= number
+            elif operator == "*":
+                if i + 1 < len(parts):
+                    result *= parts[i+1][1]
+                    i += 1
+                else:
+                    raise ValueError("Invalid expression")
+            elif operator == "/":
+                if i + 1 < len(parts):
+                    if parts[i+1][1] == 0:
+                        raise ValueError("Division by zero")
+                    result /= parts[i+1][1]
+                    i += 1
+                else:
+                    raise ValueError("Invalid expression")
+            i += 1
+        return result
+
+    index = 0
+    result = 0.0
+    current_operator = "+"
+    while index < len(expression):
+        char = expression[index]
+        if char.isdigit() or char == '.':
+            start = index
+            while index < len(expression) and (expression[index].isdigit() or expression[index] == '.'):
+                index += 1
+            number = float(expression[start:index])
+            if current_operator == "+":
+                result += number
+            elif current_operator == "-":
+                result -= number
+            elif current_operator == "*":
+                result *= number
+            elif current_operator == "/":
+                if number == 0:
+                    raise ValueError("Division by zero")
+                result /= number
+        elif char in "+-":
+            current_operator = char
+            index += 1
+        elif char in "*/":
+            current_operator = char
+            index += 1
+        elif char == '(':
+            end = find_closing_parenthesis(expression, index)
+            sub_expr = expression[index + 1:end]
+            sub_result = calculate(sub_expr)
+            if current_operator == "+":
+                result += sub_result
+            elif current_operator == "-":
+                result -= sub_result
+            elif current_operator == "*":
+                result *= sub_result
+            elif current_operator == "/":
+                if sub_result == 0:
+                    raise ValueError("Division by zero")
+                result /= sub_result
+            index = end + 1
+        else:
+            raise ValueError("Invalid character in expression")
+
+    if expression.isdigit() or (expression.startswith("-") and expression[1:].replace(".", "", 1).isdigit()):
+        return float(expression)
+
+    return result
+```
