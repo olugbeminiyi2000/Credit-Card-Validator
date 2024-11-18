@@ -1,70 +1,29 @@
-#!/usr/bin/env bash
+# Create a text file with a minimum of four paragraphs, including edge cases for testing the model's response code
+file_content_with_edge_cases = """
+This is the first paragraph. It has multiple sentences. Does it work? Yes, it does!
 
-get_file_name() {
-	read -p "Enter a file_name: " -r FILENAME
-	if [ -n "$FILENAME" ]
-	then
-		MYFILE="$FILENAME"
-	else
-		return 1
-	fi
-}
-get_log_data() {
-	read -p "Enter a log data i.e ipaddress, timestamp, httpmethod, statuscode, or responsesize: " -r LOGDATA
-	case "$LOGDATA" in
-		ipaddress|timestamp|httpmethod|statuscode|responsesize)
-			LOGDATAS="$LOGDATA"
-			;;
-		*)
-			echo "Invalid log data type."
-			return 1
-			;;
-	esac
-}
-get_exit_choice() {
-	read -p "Do you still want to continue 1 for YES or 0 for NO? " -r CHOICE
-	if [ "$CHOICE" = "1" ]
-	then
-		return 0
-	elif [ "$CHOICE" = "0" ]
-	then
-		return 1
-	else
-		return 2
-	fi
-}
-log_regex_automation() {
-	while true
-	do
-		get_file_name
-		file_result=$?
-		get_log_data
-		log_result=$?
-		if [ "$file_result" -ne 0 -a "$log_result" -ne 0 ]
-		then
-			if ! ./regex.rb "$MYFILE" "$LOGDATAS"; then
-				echo "Error: regex.rb script failed to execute."
-				exit 1
-			fi
-		else
-			if ! ./regex.rb; then
-				echo "Error: regex.rb script failed to execute."
-				exit 1
-			fi
-		fi
-		get_exit_choice
-		exit_result=$?
-		if [ "$exit_result" -eq 0 ]
-		then
-			true
-		elif [ "$exit_result" -eq 1 ]
-		then
-			exit
-		else
-			echo "Your choice of exit was $exit_result, so app is still exiting..."
-			sleep 3
-			exit
-		fi
-	done
-}
-log_regex_automation
+12345
+@@@@@
+
+This is the second paragraph. It contains proper sentences, valid words, and punctuation.
+
+    
+
+
+
+This line is blank and contains spaces only.
+
+Another valid paragraph follows here. It contains meaningful text. Let's make it count.
+
+$$$$$
+9876543210
+
+Here is the final paragraph. It is a proper paragraph with some text. Another test for the code!
+"""
+
+# Save the content to a test file
+file_path_with_edge_cases = "/mnt/data/test_text_with_edge_cases.txt"
+with open(file_path_with_edge_cases, "w") as file:
+    file.write(file_content_with_edge_cases)
+
+file_path_with_edge_cases
