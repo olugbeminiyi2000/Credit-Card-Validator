@@ -1,63 +1,67 @@
-import re
-
-def analyze_text_file(filepath):
-    """
-    Analyzes a text file to count words, sentences, and paragraphs.
-
-    Args:
-        filepath: The path to the text file.
-
-    Returns:
-        A dictionary containing the counts of words, sentences, and paragraphs,
-        or None if an error occurs.
-    """
-    try:
-        with open(filepath, 'r') as file:
-            content = file.read()
-    except FileNotFoundError:
-        print(f"Error: File not found at '{filepath}'")
-        return None
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return None
-
-    if not content.strip():
-        print("Error: The file is empty.")
-        return None
-
-    # Split the content by double newlines to identify paragraphs
-    paragraphs = re.split(r'\n\s*\n', content)
-    valid_paragraphs = []
-
-    # Only consider paragraphs with at least one alphabetic character
-    for paragraph in paragraphs:
-        if re.search(r'[a-zA-Z]', paragraph):
-            valid_paragraphs.append(paragraph)
-
-    word_count = 0
-    sentence_count = 0
-    paragraph_count = len(valid_paragraphs)
-
-    for paragraph in valid_paragraphs:
-        # Count words, including numbers and valid contractions
-        words = re.findall(r"\b[a-zA-Z0-9']+\b", paragraph)
-        word_count += len(words)
-
-        # Count sentences using . ! ? without requiring space after punctuation
-        sentences = re.findall(r'[.!?]', paragraph)
-        sentence_count += len(sentences)
-
-    return {
-        "word_count": word_count,
-        "sentence_count": sentence_count,
-        "paragraph_count": paragraph_count
+class LRUCache {
+    constructor(capacity) {
+        this.capacity = capacity;
+        this.cache = new Map();
     }
 
-# Example usage
-filepath = "your_text_file.txt"  # Replace with your file path
-results = analyze_text_file(filepath)
+    get(key) {
+        if (this.cache.has(key)) {
+            const value = this.cache.get(key);
+            this.cache.delete(key); // Remove the key to update its position
+            this.cache.set(key, value); // Reinsert key to mark as most recently used
+            return value;
+        }
+        return -1;
+    }
 
-if results:
-    print(f"Total words: {results['word_count']}")
-    print(f"Total sentences: {results['sentence_count']}")
-    print(f"Total paragraphs: {results['paragraph_count']}")
+    put(key, value) {
+        if (this.cache.has(key)) {
+            this.cache.delete(key); // Update key position if it already exists
+        } else if (this.cache.size >= this.capacity) {
+            this.cache.delete(this.cache.keys().next().value); // Evict least recently used
+        }
+        this.cache.set(key, value); // Add key-value pair
+    }
+}
+
+class MultilevelLRUCache {
+    constructor(l1Capacity, l2Capacity) {
+        this.l1Cache = new LRUCache(l1Capacity);
+        this.l2Cache = new LRUCache(l2Capacity);
+    }
+
+    get(key) {
+        let value = this.l1Cache.get(key);
+        if (value !== -1) {
+            return value; // Return value from L1 cache
+        }
+
+        // Check L2 cache if not found in L1 cache
+        value = this.l2Cache.get(key);
+        if (value !== -1) {
+            this.l1Cache.put(key, value); // Promote value to L1 cache
+        }
+        return value; // Return the found value or -1 if not found
+    }
+
+    put(key, value) {
+        // Only add to L1 cache
+        this.l1Cache.put(key, value);
+
+        // If evicted from L1, store in L2
+        if (!this.l1Cache.cache.has(key)) {
+            this.l2Cache.put(key, value);
+        }
+    }
+}
+
+// Test code
+const cache = new MultilevelLRUCache(3, 5);
+cache.put(1, 10);
+cache.put(2, 20);
+cache.put(3, 30);
+cache.put(4, 40);
+
+console.log(cache.get(1)); // Output: 10
+console.log(cache.get(4)); // Output: 40
+console.log(cache.get(5)); // Output: -1
