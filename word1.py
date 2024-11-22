@@ -11,3 +11,10 @@ The prompt has all necessary information and isn’t confusing.
 There are no contradicting requests in the prompt
 Correct language and tools used: 
 The prompt uses the right programming language or library as instructed.
+
+Prompt Creation:
+Write the initial prompt based on the task category and programming language.
+Ensure each prompt is clear, specific, and challenging to the model.
+Design the prompts to reflect the set difficulty level.
+Use only English for all prompts.
+Avoid low-effort prompts, such as single-sentence prompts or incredibly generic prompts without any constraints.
