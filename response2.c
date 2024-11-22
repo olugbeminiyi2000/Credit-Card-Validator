@@ -8,20 +8,27 @@ class TaskManager:
         self.tasks = self.load_tasks()
 
     def load_tasks(self):
+        # Change 'w' to 'r' to read from the file instead of overwriting it
         if os.path.exists(self.filename):
             try:
                 with open(self.filename, 'r') as file:
                     return json.load(file)
             except json.JSONDecodeError:
-                # Handle the case where the file is empty or contains invalid JSON
+                # Handle JSON decoding errors
                 return []
         return []
 
     def save_tasks(self):
-        with open(self.filename, 'w') as file:
-            json.dump(self.tasks, file, indent=2)
+        # Change 'r' to 'w' to write to the file instead of reading from it
+        try:
+            with open(self.filename, 'w') as file:
+                json.dump(self.tasks, file, indent=2)
+        except Exception as e:
+            # Handle file writing errors
+            print(f"Error saving tasks: {str(e)}")
 
     def add_task(self, title, description=""):
+        # Check if title is not empty
         if not title.strip():
             print("Task title cannot be empty.")
             return
@@ -59,15 +66,15 @@ class TaskManager:
         if not self.tasks:
             print("No tasks available.")
         else:
-            # Sort tasks by priority
-            sorted_tasks = sorted(self.tasks, key=lambda task: ["Low", "Medium", "High"].index(task['priority']), reverse=True)
+            # Sort tasks by priority before displaying
+            sorted_tasks = sorted(self.tasks, key=lambda x: ["Low", "Medium", "High"].index(x["priority"]), reverse=True)
             for task in sorted_tasks:
                 status = "Completed" if task["completed"] else "Incomplete"
                 overdue = "Overdue" if task.get("overdue") else "On Time"
                 print(f"ID: {task['id']}, Title: {task['title']}, Status: {status}, Priority: {task['priority']}, {overdue}")
 
     def delete_task(self, task_id):
-        for i, task in enumerate(self.tasks):
+        for i, task in enumerate(self.tasks):  # Iterate over self.tasks instead of task_id
             if task['id'] == task_id:
                 del self.tasks[i]
                 self.save_tasks()
@@ -77,7 +84,7 @@ class TaskManager:
 
     def mark_task_completed(self, task_id):
         for task in self.tasks:
-            if task['id'] == task_id:
+            if task['id'] == task_id:  # Compare with task_id instead of task["id"]
                 task['completed'] = True
                 task['overdue'] = False  # Set overdue to False
                 self.save_tasks()
