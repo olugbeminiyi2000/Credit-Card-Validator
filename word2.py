@@ -205,6 +205,14 @@ if __name__ == "__main__":
     main()
 ```
 
+- In the `load_tasks` method, changed the file mode from `'w'` to `'r'` to read from the file instead of overwriting it. Added error handling for JSON decoding errors.
+- In the `save_tasks` method, changed the file mode from `'r'` to `'w'` to write to the file instead of reading from it. Added error handling for file writing errors.
+- In the `add_task` method, fixed the condition to check if the title is not empty.
+- In the `check_overdue_tasks` method, set `task["overdue"]` to `True` when a task is overdue.
+- In the `display_tasks` method, sorted tasks by priority before displaying them.
+- In the `delete_task` method, iterated over `self.tasks` instead of `task_id`.
+- In the `mark_task_completed` method, compared `task['id']` with `task_id` instead of `task["id"]`, and set `task['overdue']` to `False` when a task is marked as completed.
+
 ### **Time Complexity Analysis:**
 
 1. **`load_tasks()`**
