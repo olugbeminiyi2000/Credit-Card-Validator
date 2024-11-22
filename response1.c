@@ -9,16 +9,16 @@ class TaskManager:
 
     def load_tasks(self):
         if os.path.exists(self.filename):
-            with open(self.filename, 'r') as file:  # Open in read mode
+            with open(self.filename, 'r') as file: # Changed 'w' to 'r'
                 return json.load(file)
         return []
 
     def save_tasks(self):
-        with open(self.filename, 'w') as file:  # Open in write mode
+        with open(self.filename, 'w') as file: # Changed 'r' to 'w'
             json.dump(self.tasks, file, indent=2)
 
     def add_task(self, title, description=""):
-        if not title.strip():  # Check if title is empty
+        if not title.strip(): # Changed to check for empty title
             print("Task title cannot be empty.")
             return
         
@@ -47,7 +47,7 @@ class TaskManager:
         for task in self.tasks:
             created_time = datetime.fromisoformat(task["created_at"])
             if not task["completed"] and now - created_time > timedelta(minutes=3):
-                task["overdue"] = True  # Set overdue to True
+                task["overdue"] = True # Changed to set overdue to True
                 print(f"Notification: Task '{task['title']}' is overdue!")
         self.save_tasks()
 
@@ -55,14 +55,14 @@ class TaskManager:
         if not self.tasks:
             print("No tasks available.")
         else:
-            sorted_tasks = sorted(self.tasks, key=lambda x: ["Low", "Medium", "High"].index(x['priority']), reverse=True)
+            sorted_tasks = sorted(self.tasks, key=lambda x: ["Low", "Medium", "High"].index(x["priority"]), reverse=True)
             for task in sorted_tasks:
                 status = "Completed" if task["completed"] else "Incomplete"
                 overdue = "Overdue" if task.get("overdue") else "On Time"
                 print(f"ID: {task['id']}, Title: {task['title']}, Status: {status}, Priority: {task['priority']}, {overdue}")
 
     def delete_task(self, task_id):
-        for i, task in enumerate(self.tasks):  # Enumerate over self.tasks
+        for i, task in enumerate(self.tasks): # Changed to iterate over self.tasks
             if task['id'] == task_id:
                 del self.tasks[i]
                 self.save_tasks()
@@ -72,9 +72,9 @@ class TaskManager:
 
     def mark_task_completed(self, task_id):
         for task in self.tasks:
-            if task['id'] == task_id:  # Compare with task_id
+            if task['id'] == task_id: # Changed to compare with task_id
                 task['completed'] = True
-                task['overdue'] = False  # Set overdue to False
+                task['overdue'] = False # Changed to set overdue to False
                 self.save_tasks()
                 print(f"Task with ID {task_id} marked as completed.")
                 return
