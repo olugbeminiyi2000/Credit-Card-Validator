@@ -1,72 +1,93 @@
-I'm currently working on a network operations team where we manage and automate various system tasks. One of our critical scripts, written by a colleague who specializes in Bash scripting, is designed to automate the execution of a Ruby script that processes log data using regular expressions. Unfortunately, my colleague is on an extended leave and isn't reachable at the moment. Our manager has asked me to ensure that this script is free of bugs and functions correctly across all environments. Since I'm not very familiar with Bash scripting, I was hoping you could assist me by reviewing the code for any potential errors or issues that might prevent it from running as expected. Could you please help me by checking the script for bugs or any potential problems? Here is the code:
+### Updated First-Person Debugging Prompt:
 
-```bash
-get_file_name() {
-	read -p "Enter a file_name: " -r FILENAME
-	if [ -n "$FILENAME" ]
-	then
-		MYFILE="$FILENAME"
-	else
-		return 1
-	fi
-}
-get_log_data() {
-	read -p "Enter a log data i.e ipaddress, timestamp, httpmethod, statuscode, or responsesize: " -r LOGDATA
-	case "$LOGDATA" in
-		ipaddress|timestamp|httpmethod|statuscode|responsesize)
-			LOGDATAS="$LOGDATA"
-			;;
-		*)
-			echo "Invalid log data type."
-			return 1
-			;;
-	esac
-}
-get_exit_choice() {
-	read -p "Do you still want to continue 1 for YES or 0 for NO? " -r CHOICE
-	if [ "$CHOICE" = "1" ]
-	then
-		return 0
-	elif [ "$CHOICE" = "0" ]
-	then
-		return 1
-	else
-		return 2
-	fi
-}
-log_regex_automation() {
-	while true
-	do
-		get_file_name
-		file_result=$?
-		get_log_data
-		log_result=$?
-		if [ "$file_result" -ne 0 -a "$log_result" -ne 0 ]
-		then
-			if ! ./regex.rb "$MYFILE" "$LOGDATAS"; then
-				echo "Error: regex.rb script failed to execute."
-				exit 1
-			fi
-		else
-			if ! ./regex.rb; then
-				echo "Error: regex.rb script failed to execute."
-				exit 1
-			fi
-		fi
-		get_exit_choice
-		exit_result=$?
-		if [ "$exit_result" -eq 0 ]
-		then
-			true
-		elif [ "$exit_result" -eq 1 ]
-		then
-			exit
-		else
-			echo "Your choice of exit was $exit_result, so app is still exiting..."
-			sleep 3
-			exit
-		fi
-	done
-}
-log_regex_automation
+I'm enhancing a terminal-based Task Management System built in python, but I've encountered several logical and runtime issues during testing. I want to debug the code, ensure it functions work correctly, and improve its documentation. The system manages tasks in a JSON file and provides functionality to add, display, and delete tasks. However, the current code has subtle bugs that affect data integrity and user experience.
+
+Your task is to thoroughly review the provided code, identify and correct the bugs, and enhance its documentation. Additionally, I need a detailed time complexity analysis of each method, with explanations on their impact on performance, especially for large datasets.
+
+Requirements:  
+1. Debugging: Identify and fix all logical and runtime errors.  
+2. Documentation: Add detailed docstrings for each function, explaining their purpose, parameters, and return values.  
+3. Time Complexity Analysis: Provide the time complexity for each method and discuss any potential performance bottlenecks.  
+
+Code:  
+```python
+import json
+import os
+
+class TaskManager:
+    def __init__(self, filename='tasks.json'):
+        self.filename = filename
+        self.tasks = self.load_tasks()
+    
+    def load_tasks(self):
+        if os.path.exists(self.filename):
+            with open(self.filename, 'r') as file:
+                return json.load(file)
+        return []
+
+    def save_tasks(self):
+        with open(self.filename, 'w') as file:
+            json.dump(self.tasks, file, indent=2)
+
+    def add_task(self, title, description=""):
+        if not title.strip():  # Title validation logic is incomplete
+            print("Task title cannot be empty.")
+            return
+        
+        new_task = {
+            "id": max([task['id'] for task in self.tasks]) + 1 if self.tasks else 1,  # Issue in ID assignment logic
+            "title": title,
+            "description": description,
+            "completed": False
+        }
+        self.tasks.append(new_task)
+        self.save_tasks()
+
+    def display_tasks(self):
+        if not self.tasks:
+            print("No tasks available.")
+        else:
+            for task in self.tasks:
+                status = "Completed" if task["completed"] else "Incomplete"
+                print(f"ID: {task['id']}, Title: {task['title']}, Description: {task['description']}, Status: {status}")
+
+    def delete_task(self, task_id):
+        for i, task in enumerate(self.tasks):
+            if task['id'] == task_id:
+                del self.tasks[i]
+                self.save_tasks()
+                print(f"Task with ID {task_id} deleted.")
+                return
+        print(f"Task with ID {task_id} not found.")
+
+# Testing the program
+def main():
+    manager = TaskManager()
+    
+    while True:
+        print("\nTask Manager Menu:")
+        print("1. Add Task")
+        print("2. Display Tasks")
+        print("3. Delete Task")
+        print("4. Exit")
+        
+        choice = input("Enter your choice: ")
+        
+        if choice == '1':
+            title = input("Enter task title: ")
+            description = input("Enter task description: ")
+            manager.add_task(title, description)
+        elif choice == '2':
+            manager.display_tasks()
+        elif choice == '3':
+            task_id = input("Enter the task ID to delete: ")  # Task ID is not validated for numeric input
+            manager.delete_task(int(task_id))
+        elif choice == '4':
+            print("Exiting Task Manager.")
+            break
+        else:
+            print("Invalid choice.")
+
+if __name__ == "__main__":
+    main()
 ```
