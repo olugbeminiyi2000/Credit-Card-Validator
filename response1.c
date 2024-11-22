@@ -1,77 +1,74 @@
-import re
+import json
+import os
 
-class ArticleManager:
-    def __init__(self, article_text, options=None):
-        if not isinstance(article_text, str):
-            raise ValueError("Article text must be a string.")
-        if options is None:
-            options = {}
+class TaskManager:
+    def __init__(self, filename='tasks.json'):
+        self.filename = filename
+        self.tasks = self.load_tasks()
+    
+    def load_tasks(self):
+        try:
+            if os.path.exists(self.filename):
+                with open(self.filename, 'r') as file:
+                    return json.load(file)
+            return []
+        except json.JSONDecodeError as e:
+            print(f"Error loading tasks: {e}")
+            return []
 
-        self.article_text = article_text
-        self.pages = []
-        self.words = []
-        self.options = {
-            'words_per_line': options.get('words_per_line', 12),
-            'lines_per_page': options.get('lines_per_page', 20),
-            'payment_structure': options.get('payment_structure', {
-                1: 30,
-                2: 30,
-                3: 60,
-                4: 60,
-                'default': 100,
-            })
+    def save_tasks(self):
+        try:
+            with open(self.filename, 'w') as file:
+                json.dump(self.tasks, file)
+        except Exception as e:
+            print(f"Error saving tasks: {e}")
+
+    def add_task(self, title, description=""):
+        if not title:
+            print("Task title is required.")
+            return
+        
+        new_task = {
+            "id": len(self.tasks) + 1,
+            "title": title,
+            "description": description,
+            "completed": False  # Added missing comma
         }
+        self.tasks.append(new_task)
+        self.save_tasks()
+        print(f"Task '{title}' added successfully.")
 
-    def split_into_pages(self):
-        words_per_line = self.options['words_per_line']
-        lines_per_page = self.options['lines_per_page']
-        words_per_page = words_per_line * lines_per_page
+    def display_tasks(self):
+        if not self.tasks:
+            print("No tasks available.")
+            return
+        
+        for task in self.tasks:
+            status = "Completed" if task["completed"] else "Incomplete"
+            print(f"ID: {task['id']}, Title: {task['title']}, Description: {task['description']}, Status: {status}")
 
-        # Split article text into words
-        self.words = re.split(r'\s+', self.article_text.strip())
-
-        # Split words into pages
-        for i in range(0, len(self.words), words_per_page):
-            page_words = self.words[i:i + words_per_page]
-            page_lines = [' '.join(page_words[j:j + words_per_line]) 
-                          for j in range(0, len(page_words), words_per_line)]
-            self.pages.append('\n'.join(page_lines))
-
-    def calculate_payment(self):
-        words_per_page = self.options['words_per_line'] * self.options['lines_per_page']
-        total_words = len(self.words)
-        paid_pages = total_words // words_per_page  # Only count complete pages for payment
-
-        if paid_pages < 1:
-            return 0
-        elif 1 <= paid_pages <= 2:
-            return 30
-        elif 3 <= paid_pages <= 4:
-            return 60
+def main():
+    manager = TaskManager()
+    
+    while True:
+        print("\nTask Manager Menu:")
+        print("1. Add Task")
+        print("2. Display Tasks")
+        print("3. Exit")
+        
+        choice = input("Enter your choice: ")
+        
+        if choice == '1':
+            title = input("Enter task title: ")
+            description = input("Enter task description: ")
+            manager.add_task(title, description)
+        elif choice == '2':
+            manager.display_tasks()
+        elif choice == '3':
+            print("Exiting Task Manager.")
+            break
         else:
-            return 100
+            print("Invalid choice, please enter a valid option.")
 
-    def display_pages(self):
-        for index, page in enumerate(self.pages):
-            print(f"\nPage {index + 1}:\n{page}\n")
-
-        total_pages = len(self.pages)
-        payment = self.calculate_payment()
-        print(f"Total Pages: {total_pages}")
-        print(f"Payment Due: ${payment}")
-
-    def process_article(self):
-        self.split_into_pages()
-        self.display_pages()
-
-# Example Usage
-article_text = (
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore "
-    "et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
-    "commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla "
-    "pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est "
-    "laborum."
-)
-
-article_manager = ArticleManager(article_text)
-article_manager.process_article()
+if __name__ == "__main__":
+    main()
