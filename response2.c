@@ -1,14 +1,3 @@
-A small development team is building a terminal-based Task Management System to help manage their daily workflow. The system stores tasks in a local JSON file, allowing users to add tasks, mark them as complete, and display task lists. Recently, during internal testing, they noticed that some functionalities aren't working correctly. Your task is to debug and fix the code to ensure it performs as expected.
-
-Task: 
-Analyze the provided Python code, identify the logical and runtime bugs, and correct them. The features involved are adding tasks and displaying tasks. The code must meet the following requirements:
-1. Tasks should be added to the JSON file correctly.
-2. Tasks should display with all their details.
-3. Ensure proper error handling for user inputs and file operations.
-4. The program should not crash unexpectedly.
-
-Code:
-```python
 import json
 import os
 
@@ -18,27 +7,46 @@ class TaskManager:
         self.tasks = self.load_tasks()
     
     def load_tasks(self):
-        if os.path.exists(self.filename):
-            with open(self.filename, 'r') as file:
-                return json.load(file)
-        return []
+        try:
+            if os.path.exists(self.filename):
+                with open(self.filename, 'r') as file:
+                    return json.load(file)
+            else:
+                # Create the file if it doesn't exist
+                with open(self.filename, 'w') as file:
+                    json.dump([], file)
+                return []
+        except json.JSONDecodeError:
+            print("Error: Unable to load tasks from file. Please check the file format.")
+            return []
 
     def save_tasks(self):
-        with open(self.filename, 'w') as file:
-            json.dump(self.tasks, file)
+        try:
+            with open(self.filename, 'w') as file:
+                json.dump(self.tasks, file)
+        except Exception as e:
+            print(f"Error: Unable to save tasks to file. {str(e)}")
 
     def add_task(self, title, description=""):
+        if not title:
+            print("Error: Task title cannot be empty.")
+            return
+        
         new_task = {
             "id": len(self.tasks) + 1,
             "title": title,
-            "description": description
-            "completed": False
+            "description": description,
+            "completed": False  # Added a comma after description
         }
         self.tasks.append(new_task)
         self.save_tasks()
         print(f"Task '{title}' added successfully.")
 
     def display_tasks(self):
+        if not self.tasks:
+            print("No tasks available.")
+            return
+        
         for task in self.tasks:
             status = "Completed" if task["completed"] else "Incomplete"
             print(f"ID: {task['id']}, Title: {task['title']}, Description: {task['description']}, Status: {status}")
@@ -56,7 +64,7 @@ def main():
         
         if choice == '1':
             title = input("Enter task title: ")
-            description = input("Enter task description: ")
+            description = input("Enter task description (optional): ")
             manager.add_task(title, description)
         elif choice == '2':
             manager.display_tasks()
@@ -68,8 +76,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
-### Constraints:
-- Do not add new features.
-- Use only built-in Python libraries.
-- Maintain the functionality described in the task requirements.
