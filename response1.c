@@ -39,11 +39,17 @@ class ArticleManager:
 
     def calculate_payment(self):
         words_per_page = self.options['words_per_line'] * self.options['lines_per_page']
-        total_pages = len(self.pages)
-        paid_pages = len(self.words) // words_per_page  # Only count complete pages for payment
+        total_words = len(self.words)
+        paid_pages = total_words // words_per_page  # Only count complete pages for payment
 
-        payment_structure = self.options['payment_structure']
-        return payment_structure.get(paid_pages, payment_structure['default'])
+        if paid_pages < 1:
+            return 0
+        elif 1 <= paid_pages <= 2:
+            return 30
+        elif 3 <= paid_pages <= 4:
+            return 60
+        else:
+            return 100
 
     def display_pages(self):
         for index, page in enumerate(self.pages):
