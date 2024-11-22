@@ -1,93 +1,34 @@
-### Updated First-Person Debugging Prompt:
+Here’s the revised prompt in the first person:
 
-I'm enhancing a terminal-based Task Management System built in python, but I've encountered several logical and runtime issues during testing. I want to debug the code, ensure it functions work correctly, and improve its documentation. The system manages tasks in a JSON file and provides functionality to add, display, and delete tasks. However, the current code has subtle bugs that affect data integrity and user experience.
+---
 
-Your task is to thoroughly review the provided code, identify and correct the bugs, and enhance its documentation. Additionally, I need a detailed time complexity analysis of each method, with explanations on their impact on performance, especially for large datasets.
+### **Prompt:**
 
-Requirements:  
-1. Debugging: Identify and fix all logical and runtime errors.  
-2. Documentation: Add detailed docstrings for each function, explaining their purpose, parameters, and return values.  
-3. Time Complexity Analysis: Provide the time complexity for each method and discuss any potential performance bottlenecks.  
+I have a Python program for managing tasks, and I need your help to debug it. The application allows me to add tasks, set priorities, display tasks, mark them as completed, check for overdue tasks, and delete tasks. The program works by dynamically setting due dates, adjusting task priorities based on descriptions, and notifying me when tasks are overdue.
 
-Code:  
-```python
-import json
-import os
+However, the program isn't working as expected, and there are a few issues I need you to fix. Here’s what should happen when it’s working correctly:
 
-class TaskManager:
-    def __init__(self, filename='tasks.json'):
-        self.filename = filename
-        self.tasks = self.load_tasks()
-    
-    def load_tasks(self):
-        if os.path.exists(self.filename):
-            with open(self.filename, 'r') as file:
-                return json.load(file)
-        return []
+1. The **priority** of tasks should be determined correctly based on their descriptions. For example, tasks with “urgent” or “important” descriptions should be assigned high priority.
+2. Tasks should be displayed in the correct order based on priority, with high-priority tasks appearing first.
+3. The **overdue** functionality should correctly identify tasks that are past their due date and notify me accordingly.
+4. **Task deletion** should work without errors, removing the specified task by its ID.
+5. Tasks should be able to be marked as **completed**, and their status should change accordingly.
 
-    def save_tasks(self):
-        with open(self.filename, 'w') as file:
-            json.dump(self.tasks, file, indent=2)
+### **What I Need You to Do:**
 
-    def add_task(self, title, description=""):
-        if not title.strip():  # Title validation logic is incomplete
-            print("Task title cannot be empty.")
-            return
-        
-        new_task = {
-            "id": max([task['id'] for task in self.tasks]) + 1 if self.tasks else 1,  # Issue in ID assignment logic
-            "title": title,
-            "description": description,
-            "completed": False
-        }
-        self.tasks.append(new_task)
-        self.save_tasks()
+- Analyze the code to identify any bugs that are preventing the correct behavior.
+- Fix the bugs, ensuring that the program manages, displays, and modifies tasks as expected.
+- After fixing the issues, provide an explanation of the **time complexity** of the solution, particularly for the key operations such as adding tasks, sorting tasks by priority, checking overdue tasks, and deleting tasks.
 
-    def display_tasks(self):
-        if not self.tasks:
-            print("No tasks available.")
-        else:
-            for task in self.tasks:
-                status = "Completed" if task["completed"] else "Incomplete"
-                print(f"ID: {task['id']}, Title: {task['title']}, Description: {task['description']}, Status: {status}")
+---
 
-    def delete_task(self, task_id):
-        for i, task in enumerate(self.tasks):
-            if task['id'] == task_id:
-                del self.tasks[i]
-                self.save_tasks()
-                print(f"Task with ID {task_id} deleted.")
-                return
-        print(f"Task with ID {task_id} not found.")
+### **What I Should Expect When It’s Working:**
 
-# Testing the program
-def main():
-    manager = TaskManager()
-    
-    while True:
-        print("\nTask Manager Menu:")
-        print("1. Add Task")
-        print("2. Display Tasks")
-        print("3. Delete Task")
-        print("4. Exit")
-        
-        choice = input("Enter your choice: ")
-        
-        if choice == '1':
-            title = input("Enter task title: ")
-            description = input("Enter task description: ")
-            manager.add_task(title, description)
-        elif choice == '2':
-            manager.display_tasks()
-        elif choice == '3':
-            task_id = input("Enter the task ID to delete: ")  # Task ID is not validated for numeric input
-            manager.delete_task(int(task_id))
-        elif choice == '4':
-            print("Exiting Task Manager.")
-            break
-        else:
-            print("Invalid choice.")
+- Tasks will be displayed in the correct order, with high-priority tasks appearing first.
+- Tasks will be marked as overdue correctly when their due date has passed.
+- Tasks can be deleted and marked as completed without errors.
+- The program will function smoothly when these actions are performed.
 
-if __name__ == "__main__":
-    main()
-```
+---
+
+This prompt now directly addresses the task in first-person language while providing a clear and challenging debugging task for the model to solve.
