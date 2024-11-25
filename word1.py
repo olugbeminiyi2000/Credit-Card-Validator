@@ -1,3 +1,7 @@
+The next issue in the task management application lies within the TaskManager class, specifically with the methods mark_task_completed and delete_task. The delete_task method is malfunctioning, causing problems when a task is deleted from the list. After deletion, the list gets modified, which causes the loop to skip the task that follows the one deleted, due to the shift in indices. This results in tasks not being properly deleted when multiple tasks are being processed or when there are edge cases, such as an empty task list after deletion. Additionally, the method does not account for when tasks are re-ordered after deletion, which further impacts its functionality. The mark_task_completed method is also experiencing issues. While it’s supposed to mark a task as completed and reset its overdue status, changes are not being saved properly, especially when multiple tasks are processed at once. Furthermore, when a batch of tasks is marked as completed, some tasks' statuses might not be updated correctly, and the integrity of the task list is compromised. Your task is to debug these errors to ensure that tasks are deleted correctly, tasks marked as completed are properly saved, and the overall integrity of the task list is maintained across different scenarios. The goal is to fix these methods so that the task deletion and completion functionalities work as expected, even in edge cases or when multiple tasks are handled at once.
+
+
+```python
 import json
 import os
 from datetime import datetime
@@ -121,6 +125,25 @@ class TaskManager:
         self.save_tasks()
         print(f"Task '{title}' added successfully with priority: {new_task['priority']}!")
 
+    def mark_task_completed(self, task_id):
+        for task in self.tasks:
+            if task['id'] == task_id:
+                task['completed'] = True
+                task['overdue'] = False
+                print(f"Task with ID {task_id} marked as completed.")
+                return
+        print(f"Task with ID {task_id} not found.")
+
+    def delete_task(self, task_id):
+        for i, task in enumerate(self.tasks):
+            if task['id'] == task_id:
+                del self.tasks[i]
+                self.save_tasks()
+                print(f"Task with ID {task_id} deleted.")
+                return
+        print(f"Task with ID {task_id} not found.")
+
+
 
 def main():
     manager = TaskManager()
@@ -129,64 +152,22 @@ def main():
     while True:
         print("\nTask Manager Menu:")
         print("1. Add Task")
+        print("2. Delete Task")
+        print("3. Mark Task as Completed")
         choice = input("Enter your choice: ")
         
         if choice == '1':
             title = input("Enter task title: ")
             description = input("Enter task description: ")
             manager.add_task(title, description)
+        elif choice == '2':
+            task_id = int(input("Enter the task ID to delete: "))
+            manager.delete_task(task_id)
+        elif choice == '3':
+            task_id = int(input("Enter the task ID to mark as completed: "))
+            manager.mark_task_completed(task_id)
         else:
             print("Invalid choice.")
 if __name__ == "__main__":
     main()
-Certainly! Here's the fixed code, along with proper documentation, an explanation of the debugging process, and a time complexity analysis:
-
-
-### **Explanation of the Debugging Process:**
-
-1. **Initial Bug Identification:**
-   - The original function was assigning a "High" priority if any of the high-priority keywords (e.g., "urgent", "important", "high") were present in the task's title or description. 
-   - However, it was not handling cases where negation words (like "not", "no", "never") appeared before the high-priority keywords. This meant that phrases like "not urgent" were still being marked as "High", even though they should be marked as "Low".
-
-2. **Solution Design:**
-   - We added a list of **negation keywords** (such as "not", "no", "never", etc.) to check for the presence of negations.
-   - We iterated through each negation keyword and checked if it appeared before any of the high-priority keywords.
-   - If a negation appeared before a high-priority keyword, we assigned a "Low" priority to the task.
-   - If no negation preceded a high-priority keyword, we assigned "High" priority based on the original logic.
-   
-3. **Handling Edge Cases:**
-   - We ensured that the function correctly handled cases where multiple keywords or negations appeared, by checking the position of the negation word relative to the high-priority keyword using the `index()` function.
-   - The function now handles both negated and non-negated high-priority keywords correctly.
-
-4. **Robustness:**
-   - The function continues to assign "Medium" or "Low" priority based on task description length if no high-priority keywords are found.
-
----
-
-### **Time Complexity Analysis:**
-
-The time complexity of the `assign_priority` function can be broken down as follows:
-
-1. **Combining the Title and Description:**
-   - The line `combined = (title + " " + description).lower()` takes **O(n)** time, where `n` is the total length of the combined string (title + description).
-
-2. **Checking for Negation Keywords:**
-   - The loop `for negation in negation_keywords:` iterates over the list of negation words, which contains a constant number of words (let's say `k` negation keywords). This part is **O(k)**.
-   - For each negation, the inner loop `for keyword in high_priority_keywords:` iterates over the high-priority keywords (3 keywords in total, so this is a constant time operation, **O(1)**).
-
-3. **Searching for Keywords:**
-   - The check `combined.index(negation)` and `combined.index(keyword)` both involve searching for the index of a substring in the string, which is **O(n)** for each call to `index()`. Since we're checking each negation with each high-priority keyword, this results in **O(k * 3 * n) = O(kn)** time for searching.
-
-4. **Final Priority Check:**
-   - The final check `if any(keyword in combined for keyword in high_priority_keywords):` involves checking for each of the 3 high-priority keywords, which is **O(3 * n) = O(n)**.
-
-5. **Overall Time Complexity:**
-   - Combining the components, the worst-case time complexity of this function is **O(kn)**, where:
-     - `k` is the number of negation keywords (a small constant),
-     - `n` is the length of the combined string.
-
-Given that `k` is constant (a fixed number of negation keywords) and the primary complexity comes from searching within the combined string, the overall time complexity can be simplified to **O(n)**.
-
----
-
-This solution addresses the bug efficiently while ensuring that the function remains scalable for larger task descriptions.
+```
