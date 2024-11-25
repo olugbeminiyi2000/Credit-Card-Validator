@@ -2,7 +2,9 @@ As I continue building the task manager application, I have just implemented the
 
 Here is the code with bugs below.
 
-
+        print("4. Display Tasks")
+        print("5. Check Overdue Tasks")
+        print("6. Exit")
 ```python
 import json
 import os
