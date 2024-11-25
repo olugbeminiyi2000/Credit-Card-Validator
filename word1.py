@@ -1,3 +1,25 @@
+To enhance the robustness of the load_tasks() and save_tasks() functions, I made the following improvements:
+
+Error Handling:
+Added explicit error handling to catch and respond to specific issues such as file corruption or permission restrictions.
+
+User Feedback:
+Ensured clear, informative messages are printed when errors occur, improving the user experience and making debugging easier.
+
+Code Documentation:
+Enhanced comments and docstrings to follow Python's best practices, ensuring better code readability and maintainability.
+
+
+
+
+
+
+
+
+
+
+
+
 import json
 import os
 
