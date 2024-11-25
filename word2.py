@@ -230,7 +230,7 @@ if __name__ == "__main__":
 ```
 
 RESPONSE 2:
-Here's the fixed code, along with proper documentation, an explanation of the debugging process, and a time complexity analysis:
+Here's the fixed code, along with proper documentation, and an explanation of the debugging process.
 
 
 ### **Explanation of the Debugging Process:**
@@ -240,19 +240,17 @@ Here's the fixed code, along with proper documentation, an explanation of the de
    - However, it was not handling cases where negation words (like "not", "no", "never") appeared before the high-priority keywords. This meant that phrases like "not urgent" were still being marked as "High", even though they should be marked as "Low".
 
 2. **Solution Design:**
-   - I added a list of **negation keywords** (such as "not", "no", "never", etc.) to check for the presence of negations.
-   - I iterated through each negation keyword and checked if it appeared before any of the high-priority keywords.
-   - If a negation appeared before a high-priority keyword, I assigned a "Low" priority to the task.
-   - If no negation preceded a high-priority keyword, I assigned "High" priority based on the original logic.
-   
-3. **Handling Edge Cases:**
-   - I ensured that the function correctly handled cases where multiple keywords or negations appeared, by checking the position of the negation word relative to the high-priority keyword using the `index()` function.
-   - The function now handles both negated and non-negated high-priority keywords correctly.
+    - **Regex Simplification**:
+       - A single regex pattern like `"{negation}\s+\w*\s*{high_priority}"` captures cases where negation words appear before high-priority keywords.
+       - `\s+` allows for whitespace, and `\w*` handles any filler word between the negation and priority keyword.
+    
+    - **High-Priority Check**:
+       - A simpler regex matches any of the high-priority keywords without requiring manual iterations, making the code more concise and easier to understand.
+    
+    - **Fallback Logic**:
+       - The priority defaults to "Medium" or "Low" based on the combined string length.
 
-4. **Robustness:**
-   - The function continues to assign "Medium" or "Low" priority based on task description length if no high-priority keywords are found.
-
-
+       
 ```python
 import json
 import os
@@ -313,42 +311,40 @@ class TaskManager:
             print("Error: Insufficient permissions to write to the task file.")
         except Exception as e:
             print(f"Error saving tasks: {e}")
-
+            
     def assign_priority(self, title, description):
         """
         Assigns a priority to the task based on its title and description.
-
-        This method looks for specific keywords related to high priority (such as "urgent", "important", and "high"),
-        but also checks if the task description contains any negations (e.g., "not") before these keywords.
-        If a negation word precedes a high-priority keyword, the priority is set to "Low" to reflect the negation.
+    
+        This method uses regex to identify high-priority keywords and check if they are negated.
+        If a negation precedes a high-priority keyword, the priority is set to "Low".
         
         Args:
             title (str): The title of the task.
             description (str): The description of the task.
-
+    
         Returns:
             str: The assigned priority ("High", "Medium", "Low").
         """
-        # List of high-priority keywords
-        high_priority_keywords = ["urgent", "important", "high"]
-        # Negation words that may affect priority
-        negation_keywords = ["not", "no", "never", "none", "without", "lack"]
+        # High-priority keywords and negation words
+        high_priority_keywords = r"(urgent|important|high)"
+        negation_keywords = r"(not|no|never|none|without|lack)"
         
-        # Combine title and description into one string and convert to lowercase
+        # Combine title and description into one string
         combined = (title + " " + description).lower()
-
-        # Check if any negation keyword appears before any high-priority keyword
-        for negation in negation_keywords:
-            for keyword in high_priority_keywords:
-                if negation in combined and combined.index(negation) < combined.index(keyword):
-                    return "Low"
-        
-        # Assign "High" priority if any high-priority keyword is found and no negation precedes it
-        if any(keyword in combined for keyword in high_priority_keywords):
+    
+        # Regex to check for negation before high-priority keywords
+        negation_before_priority = re.search(
+            rf"{negation_keywords}\s+\w*\s*{high_priority_keywords}", combined
+        )
+        if negation_before_priority:
+            return "Low"
+    
+        # Regex to check for high-priority keywords
+        if re.search(high_priority_keywords, combined):
             return "High"
-
-        # If the task description is longer than 20 characters, assign "Medium" priority
-        # Otherwise, assign "Low"
+    
+        # Assign "Medium" or "Low" based on the length of the text
         return "Medium" if len(combined) > 20 else "Low"
 
     def add_task(self, title, description=""):
@@ -490,42 +486,40 @@ class TaskManager:
             print("Error: Insufficient permissions to write to the task file.")
         except Exception as e:
             print(f"Error saving tasks: {e}")
-
+            
     def assign_priority(self, title, description):
         """
         Assigns a priority to the task based on its title and description.
-
-        This method looks for specific keywords related to high priority (such as "urgent", "important", and "high"),
-        but also checks if the task description contains any negations (e.g., "not") before these keywords.
-        If a negation word precedes a high-priority keyword, the priority is set to "Low" to reflect the negation.
+    
+        This method uses regex to identify high-priority keywords and check if they are negated.
+        If a negation precedes a high-priority keyword, the priority is set to "Low".
         
         Args:
             title (str): The title of the task.
             description (str): The description of the task.
-
+    
         Returns:
             str: The assigned priority ("High", "Medium", "Low").
         """
-        # List of high-priority keywords
-        high_priority_keywords = ["urgent", "important", "high"]
-        # Negation words that may affect priority
-        negation_keywords = ["not", "no", "never", "none", "without", "lack"]
+        # High-priority keywords and negation words
+        high_priority_keywords = r"(urgent|important|high)"
+        negation_keywords = r"(not|no|never|none|without|lack)"
         
-        # Combine title and description into one string and convert to lowercase
+        # Combine title and description into one string
         combined = (title + " " + description).lower()
-
-        # Check if any negation keyword appears before any high-priority keyword
-        for negation in negation_keywords:
-            for keyword in high_priority_keywords:
-                if negation in combined and combined.index(negation) < combined.index(keyword):
-                    return "Low"
-        
-        # Assign "High" priority if any high-priority keyword is found and no negation precedes it
-        if any(keyword in combined for keyword in high_priority_keywords):
+    
+        # Regex to check for negation before high-priority keywords
+        negation_before_priority = re.search(
+            rf"{negation_keywords}\s+\w*\s*{high_priority_keywords}", combined
+        )
+        if negation_before_priority:
+            return "Low"
+    
+        # Regex to check for high-priority keywords
+        if re.search(high_priority_keywords, combined):
             return "High"
-
-        # If the task description is longer than 20 characters, assign "Medium" priority
-        # Otherwise, assign "Low"
+    
+        # Assign "Medium" or "Low" based on the length of the text
         return "Medium" if len(combined) > 20 else "Low"
 
     def add_task(self, title, description=""):
@@ -603,7 +597,7 @@ if __name__ == "__main__":
 ```
 
 RESPONSE 3:
-Here is the summary of the changes made to the code block and the explanation of its time complexity.
+Here's the fixed code, along with proper documentation, and an explanation of the debugging process.
 
 
 ### Explanation of Bugs Fixed:
@@ -678,38 +672,36 @@ class TaskManager:
     def assign_priority(self, title, description):
         """
         Assigns a priority to the task based on its title and description.
-
-        This method looks for specific keywords related to high priority (such as "urgent", "important", and "high"),
-        but also checks if the task description contains any negations (e.g., "not") before these keywords.
-        If a negation word precedes a high-priority keyword, the priority is set to "Low" to reflect the negation.
+    
+        This method uses regex to identify high-priority keywords and check if they are negated.
+        If a negation precedes a high-priority keyword, the priority is set to "Low".
         
         Args:
             title (str): The title of the task.
             description (str): The description of the task.
-
+    
         Returns:
             str: The assigned priority ("High", "Medium", "Low").
         """
-        # List of high-priority keywords
-        high_priority_keywords = ["urgent", "important", "high"]
-        # Negation words that may affect priority
-        negation_keywords = ["not", "no", "never", "none", "without", "lack"]
+        # High-priority keywords and negation words
+        high_priority_keywords = r"(urgent|important|high)"
+        negation_keywords = r"(not|no|never|none|without|lack)"
         
-        # Combine title and description into one string and convert to lowercase
+        # Combine title and description into one string
         combined = (title + " " + description).lower()
-
-        # Check if any negation keyword appears before any high-priority keyword
-        for negation in negation_keywords:
-            for keyword in high_priority_keywords:
-                if negation in combined and combined.index(negation) < combined.index(keyword):
-                    return "Low"
-        
-        # Assign "High" priority if any high-priority keyword is found and no negation precedes it
-        if any(keyword in combined for keyword in high_priority_keywords):
+    
+        # Regex to check for negation before high-priority keywords
+        negation_before_priority = re.search(
+            rf"{negation_keywords}\s+\w*\s*{high_priority_keywords}", combined
+        )
+        if negation_before_priority:
+            return "Low"
+    
+        # Regex to check for high-priority keywords
+        if re.search(high_priority_keywords, combined):
             return "High"
-
-        # If the task description is longer than 20 characters, assign "Medium" priority
-        # Otherwise, assign "Low"
+    
+        # Assign "Medium" or "Low" based on the length of the text
         return "Medium" if len(combined) > 20 else "Low"
 
     def add_task(self, title, description=""):
@@ -831,7 +823,7 @@ This structure ensures both methods work correctly and efficiently, fixing the p
 
 
 PROMPT 4:
-As I continue building the task manager application, I have just implemented the features to display all tasks and check overdue tasks. However, I am facing an issue after running a full test: where the overdue task check is not correctly identifying overdue tasks, and the display tasks function sometimes shows the wrong order of tasks based on priority. Finally the assign priority function throws an error if no high priority word is mentioned, either in its negated/non negated form and also words that match the starting characters of a negation word (e.g. "now" makes the priority words negated giving them "Low" priority instead of "High" priority). I need you to identify and fix the issues in both the display_tasks, check_overdue_tasks, and assign_priority functions. 
+As I continue building the task manager application, I have just implemented the features to display all tasks and check overdue tasks. However, I am facing an issue after running a full test: where the overdue task check is not correctly identifying overdue tasks, and the display tasks function sometimes shows the wrong order of tasks based on priority. I need you to identify and fix the issues in both the display_tasks, and check_overdue_tasks functions. 
 Here is the code with bugs below.
 
 ```python
@@ -898,39 +890,38 @@ class TaskManager:
     def assign_priority(self, title, description):
         """
         Assigns a priority to the task based on its title and description.
-
-        This method looks for specific keywords related to high priority (such as "urgent", "important", and "high"),
-        but also checks if the task description contains any negations (e.g., "not") before these keywords.
-        If a negation word precedes a high-priority keyword, the priority is set to "Low" to reflect the negation.
+    
+        This method uses regex to identify high-priority keywords and check if they are negated.
+        If a negation precedes a high-priority keyword, the priority is set to "Low".
         
         Args:
-        title (str): The title of the task.
-        description (str): The description of the task.
-
+            title (str): The title of the task.
+            description (str): The description of the task.
+    
         Returns:
             str: The assigned priority ("High", "Medium", "Low").
         """
-        # List of high-priority keywords
-        high_priority_keywords = ["urgent", "important", "high"]
-        # Negation words that may affect priority
-        negation_keywords = ["not", "no", "never", "none", "without", "lack"]
+        # High-priority keywords and negation words
+        high_priority_keywords = r"(urgent|important|high)"
+        negation_keywords = r"(not|no|never|none|without|lack)"
         
-        # Combine title and description into one string and convert to lowercase
+        # Combine title and description into one string
         combined = (title + " " + description).lower()
-
-        # Check if any negation keyword appears before any high-priority keyword
-        for negation in negation_keywords:
-            for keyword in high_priority_keywords:
-                if negation in combined and combined.index(negation) < combined.index(keyword):
-                    return "Low"
-        
-        # Assign "High" priority if any high-priority keyword is found and no negation precedes it
-        if any(keyword in combined for keyword in high_priority_keywords):
+    
+        # Regex to check for negation before high-priority keywords
+        negation_before_priority = re.search(
+            rf"{negation_keywords}\s+\w*\s*{high_priority_keywords}", combined
+        )
+        if negation_before_priority:
+            return "Low"
+    
+        # Regex to check for high-priority keywords
+        if re.search(high_priority_keywords, combined):
             return "High"
-
-        # If the task description is longer than 20 characters, assign "Medium" priority
-        # Otherwise, assign "Low"
+    
+        # Assign "Medium" or "Low" based on the length of the text
         return "Medium" if len(combined) > 20 else "Low"
+
 
     def add_task(self, title, description=""):
         """
@@ -1072,7 +1063,7 @@ if __name__ == "__main__":
 
 
 RESPONSE 4:
-Below is the corrected code, along with documentation, explanations of the changes made to fix the issues, and the time complexities for each function fixed. 
+Here's the fixed code, along with proper documentation, and an explanation of the debugging process. 
 
 
 ### **Explanation of Changes:**
@@ -1085,18 +1076,6 @@ Below is the corrected code, along with documentation, explanations of the chang
 2. **Fixing the Overdue Status Handling in `check_overdue_tasks`:**
    - **Issue:** In the original code, the `overdue` status was only set to `True` for overdue tasks but wasn’t reset for tasks that were previously overdue but are no longer overdue.
    - **Fix:** I added logic to check and reset the `overdue` status if the task is no longer overdue. Specifically, I first check if a task is overdue and update the status if necessary. Then, if a task is no longer overdue, I reset the `overdue` status. This ensures that the task's overdue status remains accurate.
-
-
-3. **Fixing Keyword Matching and Negation Handling Errors in `assign_priority`:**   
-   - **Issue:**  
-     The initial implementation encountered two key problems:
-     1. When the combined task title and description didn't contain a priority or negation keyword, the code attempted to use methods like `.index()` without checking their presence. This caused a `ValueError`.
-     2. Partial matches with negation keywords (e.g., detecting "no" within "now") incorrectly negated high-priority words, leading to inaccurate priority assignments.  
-
-   - **Fix:**  
-     To resolve these issues, we implemented two main changes:
-     1. **Presence Check:** Before attempting to access the position of a negation or priority keyword using `.index()`, we added a check to ensure the keyword exists in the combined string. This prevents unnecessary errors by avoiding invalid index operations.
-     2. **Whole Word Matching:** We introduced regular expressions with word boundaries (`\b`) to ensure only complete words are matched. For instance, `\bno\b` correctly identifies "no" but ignores partial matches within larger words like "now." This prevents false negations and ensures high-priority words are accurately detected.  
 
 
 ### **Corrected Code:**
@@ -1164,41 +1143,36 @@ class TaskManager:
     def assign_priority(self, title, description):
         """
         Assigns a priority to the task based on its title and description.
-
-        This method looks for specific keywords related to high priority (such as "urgent", "important", and "high"),
-        but also checks if the task description contains any negations (e.g., "not") before these keywords.
-        If a negation word precedes a high-priority keyword, the priority is set to "Low" to reflect the negation.
-
+    
+        This method uses regex to identify high-priority keywords and check if they are negated.
+        If a negation precedes a high-priority keyword, the priority is set to "Low".
+        
         Args:
             title (str): The title of the task.
             description (str): The description of the task.
-
+    
         Returns:
             str: The assigned priority ("High", "Medium", "Low").
         """
-        # List of high-priority keywords
-        high_priority_keywords = ["urgent", "important", "high"]
-        # Negation words that may affect priority
-        negation_keywords = ["not", "no", "never", "none", "without", "lack"]
-
-        # Combine title and description into one string and convert to lowercase
+        # High-priority keywords and negation words
+        high_priority_keywords = r"(urgent|important|high)"
+        negation_keywords = r"(not|no|never|none|without|lack)"
+        
+        # Combine title and description into one string
         combined = (title + " " + description).lower()
-
-        # Check if any high-priority keyword exists in the combined string
-        for keyword in high_priority_keywords:
-            if re.search(r'\b' + re.escape(keyword) + r'\b', combined):
-                # Check if any negation word appears before this high-priority keyword
-                for negation in negation_keywords:
-                    if re.search(r'\b' + re.escape(negation) + r'\b', combined):
-                        # Check position of negation word and high-priority keyword
-                        negation_pos = combined.find(negation)
-                        keyword_pos = combined.find(keyword)
-                        if negation_pos < keyword_pos:
-                            return "Low"
-
-                return "High"
-
-        # If no high-priority keyword is found, assign Medium or Low based on description length
+    
+        # Regex to check for negation before high-priority keywords
+        negation_before_priority = re.search(
+            rf"{negation_keywords}\s+\w*\s*{high_priority_keywords}", combined
+        )
+        if negation_before_priority:
+            return "Low"
+    
+        # Regex to check for high-priority keywords
+        if re.search(high_priority_keywords, combined):
+            return "High"
+    
+        # Assign "Medium" or "Low" based on the length of the text
         return "Medium" if len(combined) > 20 else "Low"
 
     def add_task(self, title, description=""):
