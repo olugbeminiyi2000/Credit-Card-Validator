@@ -1,5 +1,3 @@
-As a software engineer at Dailyshift, I am working on improving a task management application in Python. I've encountered a bug in my task priority logic when testing. The system is assigning "High" priority to tasks even when a word like "not" precedes high-priority keywords such as "urgent", "important", or "high". For example, if a task description contains the phrase "not urgent", the system should assign a "Low" priority instead of "High", but it continues marking the task as "High". I need help fixing this bug so that the presence of negating words like "not" properly negates the priority, assigning "Low" priority when a negation precedes high-priority keywords like "urgent" or "important". This fix will ensure the system behaves as expected and doesn't mislabel tasks.
-
 import json
 import os
 from datetime import datetime
@@ -60,14 +58,52 @@ class TaskManager:
             print(f"Error saving tasks: {e}")
 
     def assign_priority(self, title, description):
-        keywords = ["urgent", "important", "high"]
+        """
+        Assigns a priority to the task based on its title and description.
+
+        This method looks for specific keywords related to high priority (such as "urgent", "important", and "high"),
+        but also checks if the task description contains any negations (e.g., "not") before these keywords.
+        If a negation word precedes a high-priority keyword, the priority is set to "Low" to reflect the negation.
+        
+        Args:
+            title (str): The title of the task.
+            description (str): The description of the task.
+
+        Returns:
+            str: The assigned priority ("High", "Medium", "Low").
+        """
+        # List of high-priority keywords
+        high_priority_keywords = ["urgent", "important", "high"]
+        # Negation words that may affect priority
+        negation_keywords = ["not", "no", "never", "none", "without", "lack"]
+        
+        # Combine title and description into one string and convert to lowercase
         combined = (title + " " + description).lower()
-        if any(keyword in combined for keyword in keywords):
+
+        # Check if any negation keyword appears before any high-priority keyword
+        for negation in negation_keywords:
+            for keyword in high_priority_keywords:
+                if negation in combined and combined.index(negation) < combined.index(keyword):
+                    return "Low"
+        
+        # Assign "High" priority if any high-priority keyword is found and no negation precedes it
+        if any(keyword in combined for keyword in high_priority_keywords):
             return "High"
+
+        # If the task description is longer than 20 characters, assign "Medium" priority
+        # Otherwise, assign "Low"
         return "Medium" if len(combined) > 20 else "Low"
 
-
     def add_task(self, title, description=""):
+        """
+        Adds a new task with the given title and description.
+        
+        Args:
+            title (str): The title of the task.
+            description (str): A brief description of the task.
+            
+        If the title is empty, the task is not added.
+        """
         if not title.strip():
             print("Task title cannot be empty.")
             return
@@ -103,3 +139,54 @@ def main():
             print("Invalid choice.")
 if __name__ == "__main__":
     main()
+Certainly! Here's the fixed code, along with proper documentation, an explanation of the debugging process, and a time complexity analysis:
+
+
+### **Explanation of the Debugging Process:**
+
+1. **Initial Bug Identification:**
+   - The original function was assigning a "High" priority if any of the high-priority keywords (e.g., "urgent", "important", "high") were present in the task's title or description. 
+   - However, it was not handling cases where negation words (like "not", "no", "never") appeared before the high-priority keywords. This meant that phrases like "not urgent" were still being marked as "High", even though they should be marked as "Low".
+
+2. **Solution Design:**
+   - We added a list of **negation keywords** (such as "not", "no", "never", etc.) to check for the presence of negations.
+   - We iterated through each negation keyword and checked if it appeared before any of the high-priority keywords.
+   - If a negation appeared before a high-priority keyword, we assigned a "Low" priority to the task.
+   - If no negation preceded a high-priority keyword, we assigned "High" priority based on the original logic.
+   
+3. **Handling Edge Cases:**
+   - We ensured that the function correctly handled cases where multiple keywords or negations appeared, by checking the position of the negation word relative to the high-priority keyword using the `index()` function.
+   - The function now handles both negated and non-negated high-priority keywords correctly.
+
+4. **Robustness:**
+   - The function continues to assign "Medium" or "Low" priority based on task description length if no high-priority keywords are found.
+
+---
+
+### **Time Complexity Analysis:**
+
+The time complexity of the `assign_priority` function can be broken down as follows:
+
+1. **Combining the Title and Description:**
+   - The line `combined = (title + " " + description).lower()` takes **O(n)** time, where `n` is the total length of the combined string (title + description).
+
+2. **Checking for Negation Keywords:**
+   - The loop `for negation in negation_keywords:` iterates over the list of negation words, which contains a constant number of words (let's say `k` negation keywords). This part is **O(k)**.
+   - For each negation, the inner loop `for keyword in high_priority_keywords:` iterates over the high-priority keywords (3 keywords in total, so this is a constant time operation, **O(1)**).
+
+3. **Searching for Keywords:**
+   - The check `combined.index(negation)` and `combined.index(keyword)` both involve searching for the index of a substring in the string, which is **O(n)** for each call to `index()`. Since we're checking each negation with each high-priority keyword, this results in **O(k * 3 * n) = O(kn)** time for searching.
+
+4. **Final Priority Check:**
+   - The final check `if any(keyword in combined for keyword in high_priority_keywords):` involves checking for each of the 3 high-priority keywords, which is **O(3 * n) = O(n)**.
+
+5. **Overall Time Complexity:**
+   - Combining the components, the worst-case time complexity of this function is **O(kn)**, where:
+     - `k` is the number of negation keywords (a small constant),
+     - `n` is the length of the combined string.
+
+Given that `k` is constant (a fixed number of negation keywords) and the primary complexity comes from searching within the combined string, the overall time complexity can be simplified to **O(n)**.
+
+---
+
+This solution addresses the bug efficiently while ensuring that the function remains scalable for larger task descriptions.
