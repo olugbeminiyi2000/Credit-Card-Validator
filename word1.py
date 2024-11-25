@@ -1,27 +1,8 @@
-To enhance the robustness of the load_tasks() and save_tasks() functions, I made the following improvements:
-
-Error Handling:
-Added explicit error handling to catch and respond to specific issues such as file corruption or permission restrictions.
-
-User Feedback:
-Ensured clear, informative messages are printed when errors occur, improving the user experience and making debugging easier.
-
-Code Documentation:
-Enhanced comments and docstrings to follow Python's best practices, ensuring better code readability and maintainability.
-
-
-
-
-
-
-
-
-
-
-
+As a software engineer at Dailyshift, I am working on improving a task management application in Python. I've encountered a bug in my task priority logic when testing. The system is assigning "High" priority to tasks even when a word like "not" precedes high-priority keywords such as "urgent", "important", or "high". For example, if a task description contains the phrase "not urgent", the system should assign a "Low" priority instead of "High", but it continues marking the task as "High". I need help fixing this bug so that the presence of negating words like "not" properly negates the priority, assigning "Low" priority when a negation precedes high-priority keywords like "urgent" or "important". This fix will ensure the system behaves as expected and doesn't mislabel tasks.
 
 import json
 import os
+from datetime import datetime
 
 class TaskManager:
     """
@@ -78,41 +59,47 @@ class TaskManager:
         except Exception as e:
             print(f"Error saving tasks: {e}")
 
+    def assign_priority(self, title, description):
+        keywords = ["urgent", "important", "high"]
+        combined = (title + " " + description).lower()
+        if any(keyword in combined for keyword in keywords):
+            return "High"
+        return "Medium" if len(combined) > 20 else "Low"
+
+
+    def add_task(self, title, description=""):
+        if not title.strip():
+            print("Task title cannot be empty.")
+            return
+        
+        new_task = {
+            "id": self.tasks[-1]["id"] + 1 if self.tasks else 1,
+            "title": title,
+            "description": description,
+            "completed": False,
+            "created_at": datetime.now().isoformat(),
+            "priority": self.assign_priority(title, description),
+            "overdue": False
+        }
+        self.tasks.append(new_task)
+        self.save_tasks()
+        print(f"Task '{title}' added successfully with priority: {new_task['priority']}!")
+
+
 def main():
     manager = TaskManager()
     print(f"Loaded {len(manager.tasks)} tasks.")
 
+    while True:
+        print("\nTask Manager Menu:")
+        print("1. Add Task")
+        choice = input("Enter your choice: ")
+        
+        if choice == '1':
+            title = input("Enter task title: ")
+            description = input("Enter task description: ")
+            manager.add_task(title, description)
+        else:
+            print("Invalid choice.")
 if __name__ == "__main__":
     main()
-
-
-
-### Debugging Steps and changes added
-
-1. **Improved Error Handling:**
-   - Added specific exceptions to catch `JSONDecodeError` in `load_tasks()` and `PermissionError` in `save_tasks()`.
-   - Included a general `Exception` catch to handle any unexpected issues gracefully.
-
-2. **User Feedback:**
-   - Clear error messages are printed to alert the user about file corruption, missing files, or permission issues.
-   - Provides context about starting with an empty task list if no file is found.
-
-3. **Code Documentation:**
-   - Enhanced docstrings for both functions to clearly explain their purpose, behavior, and parameters.
-   - Detailed comments within the code outline each error-handling scenario.
-
----
-
-### Time Complexity Analysis
-
-- **`load_tasks()` Function:**
-  - **Time Complexity:** O(n)  
-    The complexity is proportional to the number of tasks (`n`) in the JSON file because `json.load()` reads and parses the entire file.  
-  - **Space Complexity:** O(n)  
-    The loaded task list requires space proportional to the number of tasks.
-
-- **`save_tasks()` Function:**
-  - **Time Complexity:** O(n)  
-    Writing the task list to a file requires processing each task (`n`) for JSON serialization.  
-  - **Space Complexity:** O(1)  
-    No additional memory allocation beyond temporary buffers for file writing.
