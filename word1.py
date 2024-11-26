@@ -1,6 +1,19 @@
-The University Management System's main menu (`main_menu` method) is a key feature for interacting with the system. However, while testing its functionality, I realized that it violates the Facade design pattern. The main menu is directly interacting with the core logic of student and course management, making it difficult to extend or modify the functionality in a clean and modular way. This direct coupling creates a tightly bound system where adding or changing features in the menu requires modifying the core methods, which could lead to unexpected issues and make the system harder to maintain as it grows. This not only violates the **Facade pattern** but also makes it more difficult to scale or enhance the application in a manageable way. 
+Here’s an updated and documented version of the `Facade design pattern` implementation, addressing the issues described in the prompt.
 
-Please fully address this issue in the `main_menu` method so that it follows the **Facade pattern**, ensuring a cleaner, modular design that is easier to extend and maintain in the future.
+
+### Explanation of the Changes:
+1. **Separation of Concerns**: 
+   - The `UniversitySystem` class is only responsible for core business logic like adding students, enrolling in courses, and assigning grades. It doesn't deal with the user interface or menu handling.
+   - The `UniversitySystemFacade` class handles all the user interaction, displaying the menu, and calling the appropriate methods on `UniversitySystem`. This class serves as a **Facade** that simplifies the user interface to interact with the system.
+
+2. **Extensibility**:
+   - If you wanted to add additional functionality, like updating a student's information or viewing course details, you could do so in the `UniversitySystemFacade` without modifying the `UniversitySystem` class itself.
+   - The `main_menu` is now much cleaner, and you can add more menu options without interfering with the core logic of the system.
+
+3. **Clean Design**:
+   - This design follows the **Facade Pattern** as it provides a simplified interface (`UniversitySystemFacade`) that hides the complexities of interacting with the core system (`UniversitySystem`).
+   - If you need to change the underlying system, like switching from file-based storage to a database, you can do so in the `UniversitySystem` class without affecting the user-facing menu logic in `UniversitySystemFacade`.
+
 
 ```python
 import sys
@@ -211,15 +224,38 @@ class UniversitySystem:
         else:
             print(f"Error: Could not assign grade. Student '{student_id}' or course '{course_id}' not found.")
 
-
-
-    def main_menu(self):
+            
+class UniversitySystemFacade:
+    """
+    A facade class to simplify interactions with the underlying `UniversitySystem` class.
+    It abstracts the core logic of student and course management and provides a simple 
+    interface for users to interact with the university system through a menu.
+    
+    This class encapsulates the complexity of the system's operations, presenting a 
+    simplified API to the user, and allows the system to be extended or modified 
+    more easily without affecting the user interface logic.
+    """
+    
+    def __init__(self):
         """
-        Display the main menu of the University Management System and 
-        process user input to perform different operations.
+        Initializes the facade by creating an instance of the `UniversitySystem` class.
+        
+        This serves as a wrapper around the core system to handle user input and delegate
+        tasks like adding students, adding courses, enrolling students, and assigning grades.
+        """
+        # Instantiate the underlying system class
+        self.system = UniversitySystem()
+
+    def display_menu(self):
+        """
+        Displays the main menu for the University Management System and handles 
+        user interaction through input. Based on user choices, the appropriate methods 
+        are called from the `UniversitySystem` class to perform system operations.
+        
+        This method runs in a loop until the user decides to exit.
         """
         while True:
-            # Display the main menu options
+            # Display menu options to the user
             print("\nUniversity Management System")
             print("1. Add Student")
             print("2. Add Course")
@@ -227,44 +263,87 @@ class UniversitySystem:
             print("4. View Student's Courses and Grades")
             print("5. Assign Grade to Student")
             print("6. Exit")
+            
+            # Get the user's choice from the menu
             choice = input("Enter your choice: ")
 
             if choice == "1":
-                # Add a student
-                student_id = input("Enter student ID: ")
-                name = input("Enter student name: ")
-                self.add_student(student_id, name)
+                # Add a student to the system
+                self.add_student()
             elif choice == "2":
-                # Add a course
-                course_id = input("Enter course ID: ")
-                course_name = input("Enter course name: ")
-                self.add_course(course_id, course_name)
+                # Add a student to the system
+                self.add_course()
             elif choice == "3":
                 # Enroll a student in a course
-                student_id = input("Enter student ID: ")
-                course_id = input("Enter course ID: ")
-                self.enroll_student(student_id, course_id)
+                self.enroll_student()
             elif choice == "4":
-                # View a student's courses and grades
-                student_id = input("Enter student ID: ")
-                self.view_student_courses_and_grades(student_id)
+                # View student's courses and grades
+                self.view_student_courses_and_grades()  
             elif choice == "5":
-                # Assign a grade to a student course
-                student_id = input("Enter student ID: ")
-                course_id = input("Enter course ID: ")
-                grade = input("Enter grade: ")
-                self.assign_grade(student_id, course_id, grade)
+                # Assign a grade to a student
+                self.assign_grade()
             elif choice == "6":
-                # Exit the system
+                # Exit message
                 print("Exiting the system. Goodbye!")
-                self.save_data()
-                sys.exit()
+                # Save data before exit
+                self.system.save_data()
+                break  # Exit the loop and terminate the program
             else:
                 print("Invalid choice. Please try again.")
 
+    def add_student(self):
+        """
+        Handles the logic for adding a student to the system. Prompts the user 
+        to input student ID and name, and then calls the `add_student` method 
+        from the `UniversitySystem` class to actually add the student.
+        """
+        student_id = input("Enter student ID: ")
+        name = input("Enter student name: ")
+        self.system.add_student(student_id, name)  
+
+    def add_course(self):
+        """
+        Handles the logic for adding a course to the system. Prompts the user 
+        to input course ID and course name, and then calls the `add_course` method 
+        from the `UniversitySystem` class to actually add the course.
+        """
+        course_id = input("Enter course ID: ")
+        course_name = input("Enter course name: ")
+        self.system.add_course(course_id, course_name)
+
+    def enroll_student(self):
+        """
+        Handles the logic for enrolling a student in a course. Prompts the user 
+        to input student ID and course ID, then delegates the task of enrolling 
+        the student to the `enroll_student` method of the `UniversitySystem` class.
+        """
+        student_id = input("Enter student ID: ")
+        course_id = input("Enter course ID: ")
+        self.system.enroll_student(student_id, course_id)
+
+    def assign_grade(self):
+        """
+        Handles the logic for assigning a grade to a student in a particular course. 
+        Prompts the user to input student ID, course ID, and grade, and then calls 
+        the `assign_grade` method of the `UniversitySystem` class to actually assign 
+        the grade to the student.
+        """
+        student_id = input("Enter student ID: ")
+        course_id = input("Enter course ID: ")
+        grade = input("Enter grade: ")
+        self.system.assign_grade(student_id, course_id, grade)
+
+    def view_student_courses_and_grades(self):
+        """
+        Handles the logic for viewing a student's enrolled courses and their grades. 
+        Prompts the user to input a student ID, then retrieves and displays the 
+        list of courses along with the respective grades from the `UniversitySystem` class.
+        """
+        student_id = input("Enter student ID: ")
+        self.system.view_student_courses_and_grades(student_id)  
 
 if __name__ == "__main__":
-    # Create an instance of UniversitySystem and start the main menu
-    system = UniversitySystem()
-    system.main_menu()
+    # Start the facade which will handle user interactions
+    facade = UniversitySystemFacade()
+    facade.display_menu()
 ```
