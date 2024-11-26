@@ -1,297 +1,221 @@
-Below is the corrected code, along with documentation and explanations of the changes made to fix the issues.
+Here’s the updated and fixed code where we directly take a student ID as input and validate it to ensure it is non-empty, unique, and meaningful. Directly addresses the issues of empty or duplicate student IDs, course IDs and course overwrites. 
 
+### **Fixed Code**
 
-### **Explanation of Changes:**
-
-1. **Fixing the Sorting in `display_tasks`:**
-   - **Issue:** In the original code, the sorting used an incorrect approach by trying to index the list `["Low", "Medium", "High"]`. This could lead to issues if the task priority is misspelled or missing.
-   - **Fix:** I replaced the sorting logic with a dictionary `priority_order = {"High": 3, "Medium": 2, "Low": 1}` to ensure a correct priority order. The `get()` method of the dictionary is used to safely handle cases where a priority value might be invalid, defaulting to `0` if the priority is not found. The tasks are now correctly sorted by priority from high to low.
-
-
-2. **Fixing the Overdue Status Handling in `check_overdue_tasks`:**
-   - **Issue:** In the original code, the `overdue` status was only set to `True` for overdue tasks but wasn’t reset for tasks that were previously overdue but are no longer overdue.
-   - **Fix:** I added logic to check and reset the `overdue` status if the task is no longer overdue. Specifically, I first check if a task is overdue and update the status if necessary. Then, if a task is no longer overdue, I reset the `overdue` status. This ensures that the task's overdue status remains accurate.
-
-
-3. **Fixing Keyword Matching and Negation Handling Errors:**  
-   - **Issue:**  
-     The initial implementation encountered two key problems:
-     1. When the combined task title and description didn't contain a priority or negation keyword, the code attempted to use methods like `.index()` without checking their presence. This caused a `ValueError`.
-     2. Partial matches with negation keywords (e.g., detecting "no" within "now") incorrectly negated high-priority words, leading to inaccurate priority assignments.  
-
-   - **Fix:**  
-     To resolve these issues, we implemented two main changes:
-     1. **Presence Check:** Before attempting to access the position of a negation or priority keyword using `.index()`, we added a check to ensure the keyword exists in the combined string. This prevents unnecessary errors by avoiding invalid index operations.
-     2. **Whole Word Matching:** We introduced regular expressions with word boundaries (`\b`) to ensure only complete words are matched. For instance, `\bno\b` correctly identifies "no" but ignores partial matches within larger words like "now." This prevents false negations and ensures high-priority words are accurately detected.  
-
-### **Corrected Code:**
 ```python
+import sys
 import json
 import os
-from datetime import datetime, timedelta
-import re
 
-class TaskManager:
+class UniversitySystem:
     """
-    TaskManager class for managing tasks with features such as
-    saving/loading tasks from a JSON file.
+    A class to manage a university system for students and courses, 
+    with persistent data storage in a JSON file.
     """
 
-    def __init__(self, filename='tasks.json'):
+    def __init__(self, data_file="university_data.json"):
         """
-        Initializes the TaskManager with the given filename for storing tasks.
-        
-        Args:
-        filename (str): The name of the JSON file where tasks are saved.
-        """
-        self.filename = filename
-        self.tasks = self.load_tasks()
+        Initialize the UniversitySystem.
 
-    def load_tasks(self):
+        Parameters:
+        - data_file (str): The path to the JSON file used for persistent data storage.
         """
-        Loads the list of tasks from the JSON file.
-        
-        Handles JSON decoding errors and provides feedback if
-        the file is corrupted.
-        
-        Returns:
-        list: List of tasks loaded from the file, or an empty list if 
-        the file doesn't exist or is corrupted.
-        """
-        if os.path.exists(self.filename):
-            try:
-                with open(self.filename, 'r') as file:
-                    return json.load(file)
-            except json.JSONDecodeError:
-                print("Error: The task file is corrupted or contains invalid JSON.")
-                return []  # Return empty list if JSON is invalid
-            except Exception as e:
-                print(f"Error loading tasks: {e}")
-                return []  # Handle other unexpected errors
-        else:
-            print("No task file found. Starting with an empty task list.")
-        return []
+        self.data_file = data_file  # File to store persistent data
+        self.students = {}         # Dictionary to store student data
+        self.courses = {}          # Dictionary to store course data
+        self.load_data()           # Load data from file upon initialization
 
-    def save_tasks(self):
+    def load_data(self):
         """
-        Saves the current tasks list to the JSON file.
-        
-        Handles file write errors and informs the user if saving fails.
+        Load student and course data from a JSON file.
+        Handles scenarios where the file is missing, empty, or corrupted.
         """
         try:
-            with open(self.filename, 'w') as file:
-                json.dump(self.tasks, file, indent=2)
-        except PermissionError:
-            print("Error: Insufficient permissions to write to the task file.")
+            if os.path.exists(self.data_file):
+                with open(self.data_file, "r") as file:
+                    data = json.load(file)
+                    self.students = data.get("students", {})
+                    self.courses = data.get("courses", {})
+                    print("Data loaded successfully.")
+            else:
+                print("Data file not found. Starting with an empty system.")
+        except json.JSONDecodeError:
+            print("Data file is corrupted or empty. Starting with an empty system.")
         except Exception as e:
-            print(f"Error saving tasks: {e}")
+            print(f"An unexpected error occurred while loading data: {e}")
 
-    def assign_priority(self, title, description):
+    def save_data(self):
         """
-        Assigns a priority to the task based on its title and description.
+        Save student and course data to a JSON file.
+        Handles unexpected errors during the save process.
+        """
+        try:
+            with open(self.data_file, "w") as file:
+                data = {
+                    "students": self.students,
+                    "courses": self.courses,
+                }
+                json.dump(data, file, indent=4)
+                print("Data saved successfully.")
+        except Exception as e:
+            print(f"An error occurred while saving data: {e}")
 
-        This method looks for specific keywords related to high priority (such as "urgent", "important", and "high"),
-        but also checks if the task description contains any negations (e.g., "not") before these keywords.
-        If a negation word precedes a high-priority keyword, the priority is set to "Low" to reflect the negation.
+    def validate_student_id(self, student_id):
+        """
+        Validate the student ID to ensure it is non-empty and unique.
 
-        Args:
-            title (str): The title of the task.
-            description (str): The description of the task.
+        Parameters:
+        - student_id (str): The student ID to validate.
 
         Returns:
-            str: The assigned priority ("High", "Medium", "Low").
+        - bool: True if the student ID is valid, False otherwise.
         """
-        # List of high-priority keywords
-        high_priority_keywords = ["urgent", "important", "high"]
-        # Negation words that may affect priority
-        negation_keywords = ["not", "no", "never", "none", "without", "lack"]
+        if not student_id.strip():
+            print("Error: Student ID cannot be empty or whitespace.")
+            return False
+        if student_id in self.students:
+            print("Error: Student ID already exists. Please use a unique ID.")
+            return False
+        return True
 
-        # Combine title and description into one string and convert to lowercase
-        combined = (title + " " + description).lower()
-
-        # Check if any high-priority keyword exists in the combined string
-        for keyword in high_priority_keywords:
-            if re.search(r'\b' + re.escape(keyword) + r'\b', combined):
-                # Check if any negation word appears before this high-priority keyword
-                for negation in negation_keywords:
-                    if re.search(r'\b' + re.escape(negation) + r'\b', combined):
-                        # Check position of negation word and high-priority keyword
-                        negation_pos = combined.find(negation)
-                        keyword_pos = combined.find(keyword)
-                        if negation_pos < keyword_pos:
-                            return "Low"
-
-                return "High"
-
-        # If no high-priority keyword is found, assign Medium or Low based on description length
-        return "Medium" if len(combined) > 20 else "Low"
-
-    def add_task(self, title, description=""):
+    def add_student(self, student_id, name):
         """
-        Adds a new task with the given title and description.
-        
-        Args:
-            title (str): The title of the task.
-            description (str): A brief description of the task.
-            
-        If the title is empty, the task is not added.
+        Add a student to the system after validating the input.
+
+        Parameters:
+        - student_id (str): The unique ID of the student.
+        - name (str): The name of the student.
+
+        Validates:
+        - Student ID is non-empty and unique.
+        - Student name is non-empty.
         """
-        if not title.strip():
-            print("Task title cannot be empty.")
+        if not self.validate_student_id(student_id):
             return
-        
-        new_task = {
-            "id": self.tasks[-1]["id"] + 1 if self.tasks else 1,
-            "title": title,
-            "description": description,
-            "completed": False,
-            "created_at": datetime.now().isoformat(),
-            "priority": self.assign_priority(title, description),
-            "overdue": False
-        }
-        self.tasks.append(new_task)
-        self.save_tasks()
-        print(f"Task '{title}' added successfully with priority: {new_task['priority']}!")
+        if not name.strip():
+            print("Error: Student name cannot be empty or whitespace.")
+            return
 
-    def mark_task_completed(self, task_id):
-        """
-        Marks a task as completed by its ID and saves the updated list of tasks.
-        
-        Args:
-            task_id (int): The ID of the task to be marked as completed.
-            
-        This method updates the task's status to completed, resets its overdue status to False, 
-        and saves the task list to ensure the changes are persisted. 
-        """
-        task_found = False
-        
-        for task in self.tasks:
-            if task['id'] == task_id:
-                task['completed'] = True
-                task['overdue'] = False
-                self.save_tasks()
-                task_found = True
-                print(f"Task with ID {task_id} marked as completed.")
-                break
-        
-        if not task_found:
-            print(f"Task with ID {task_id} not found.")
+        # Add the student to the system
+        self.students[student_id] = {"name": name.strip(), "courses": {}}
+        print(f"Student '{name}' added successfully with ID: {student_id}")
+        self.save_data()  # Save changes to the data file
 
-    def delete_task(self, task_id):
+    def validate_course_id(self, course_id):
         """
-        Deletes a task by its ID and saves the updated list of tasks.
-        
-        Args:
-            task_id (int): The ID of the task to be deleted.
-            
-        This method removes a task from the task list by its ID and saves the task list 
-        to ensure that the deletion is persisted. It handles edge cases, such as modifying the 
-        list during iteration.
-        """
-        task_found = False
-        
-        for i, task in enumerate(self.tasks):
-            if task['id'] == task_id:
-                del self.tasks[i]
-                self.save_tasks()
-                task_found = True
-                print(f"Task with ID {task_id} deleted.")
-                break
-        
-        if not task_found:
-            print(f"Task with ID {task_id} not found.")
+        Validate the course ID to ensure it is non-empty and unique.
 
-    def display_tasks(self):
-        """
-        Displays all tasks, sorted by priority (High > Medium > Low), showing their ID, title, 
-        status (completed/incomplete), priority, and whether they are overdue.
-        The tasks are displayed in the correct order with priority and overdue status.
-        """
-        if not self.tasks:
-            print("No tasks available.")
-        else:
-            # Sort tasks by priority: High > Medium > Low (corrected sorting order)
-            priority_order = {"High": 3, "Medium": 2, "Low": 1}
-            sorted_tasks = sorted(self.tasks, key=lambda x: priority_order.get(x["priority"], 0), reverse=True)
-            for task in sorted_tasks:
-                status = "Completed" if task["completed"] else "Incomplete"
-                overdue = "Overdue" if task.get("overdue") else "On Time"
-                print(f"ID: {task['id']}, Title: {task['title']}, Status: {status}, Priority: {task['priority']}, {overdue}")
+        Parameters:
+        - course_id (str): The course ID to validate.
 
-    def check_overdue_tasks(self):
+        Returns:
+        - bool: True if the course ID is valid, False otherwise.
         """
-        Checks if any tasks are overdue and prints notifications for overdue tasks.
-        
-        A task is considered overdue if it was created more than 3 minutes ago and is not marked as completed.
-        It updates the overdue status accordingly.
+        if not course_id.strip():
+            print("Error: Course ID cannot be empty or whitespace.")
+            return False
+        if course_id in self.courses:
+            print(f"Error: Course ID '{course_id}' already exists.")
+            return False
+        return True
+
+    def add_course(self, course_id, course_name):
         """
-        now = datetime.now()
-        for task in self.tasks:
-            created_time = datetime.fromisoformat(task["created_at"])
-            # Check if the task is overdue (created more than 3 minutes ago and not completed)
-            if not task["completed"] and now - created_time > timedelta(minutes=3):
-                if not task.get("overdue", False):
-                    task["overdue"] = True
-                    print(f"Notification: Task '{task['title']}' is overdue!")
+        Add a course to the system after validating the input.
+
+        Parameters:
+        - course_id (str): The unique ID of the course.
+        - course_name (str): The name of the course.
+
+        Validates:
+        - Course ID is non-empty and unique.
+        - Course name is non-empty.
+        """
+        if not self.validate_course_id(course_id):
+            return
+        if not course_name.strip():
+            print("Error: Course name cannot be empty or whitespace.")
+            return
+
+        # Add the course to the system
+        self.courses[course_id] = {"name": course_name.strip()}
+        print(f"Course '{course_name}' added successfully with ID: {course_id}")
+        self.save_data()  # Save changes to the data file
+
+    def main_menu(self):
+        """
+        Display the main menu of the University Management System and 
+        process user input to perform different operations.
+        """
+        while True:
+            # Display the main menu options
+            print("\nUniversity Management System")
+            print("1. Add Student")
+            print("2. Add Course")
+            print("3. Exit")
+            choice = input("Enter your choice: ")
+
+            if choice == "1":
+                # Add a student
+                student_id = input("Enter student ID: ")
+                name = input("Enter student name: ")
+                self.add_student(student_id, name)
+            elif choice == "2":
+                # Add a course
+                course_id = input("Enter course ID: ")
+                course_name = input("Enter course name: ")
+                self.add_course(course_id, course_name)
+            elif choice == "3":
+                # Exit the system
+                print("Exiting the system. Goodbye!")
+                self.save_data()
+                sys.exit()
             else:
-                if task.get("overdue", False):
-                    task["overdue"] = False
-        self.save_tasks()
-
-def main():
-    manager = TaskManager()
-    print(f"Loaded {len(manager.tasks)} tasks.")
-
-    while True:
-        print("\nTask Manager Menu:")
-        print("1. Add Task")
-        print("2. Delete Task")
-        print("3. Mark Task as Completed")
-        print("4. Display Tasks")
-        print("5. Check Overdue Tasks")
-        print("6. Exit")
-
-        choice = input("Enter your choice (1-6): ")
-
-        if choice == "1":
-            title = input("Enter task title: ")
-            description = input("Enter task description: ")
-            manager.add_task(title, description)
-        elif choice == "2":
-            task_id = int(input("Enter task ID to delete: "))
-            manager.delete_task(task_id)
-        elif choice == "3":
-            task_id = int(input("Enter task ID to mark as completed: "))
-            manager.mark_task_completed(task_id)
-        elif choice == "4":
-            manager.display_tasks()
-        elif choice == "5":
-            manager.check_overdue_tasks()
-        elif choice == "6":
-            print("Exiting Task Manager...")
-            break
-        else:
-            print("Invalid choice. Please try again.")
+                print("Invalid choice. Please try again.")
 
 if __name__ == "__main__":
-    main()
+    # Create an instance of UniversitySystem and start the main menu
+    system = UniversitySystem()
+    system.main_menu()
 ```
 
 
-### **Summary of Time Complexities:**
+### **Explanation of Fixes**
 
-- **`display_tasks`:**  
-  - **Explanation:** The sorting step has a time complexity of **O(n log n)**, where **n** is the number of tasks, because we are sorting the tasks based on their priority. The iteration over the tasks to print them is **O(n)**, so the overall complexity is dominated by the sorting step.  
-  - **Time Complexity:** **O(n log n)**
+1. **Validation for Student ID**:
+   - Added a `validate_student_id` method to check:
+     - The student ID is non-empty (`not student_id.strip()`).
+     - The student ID is unique (`student_id not in self.students`).
+   - The method returns `False` if validation fails and provides appropriate error messages.
 
-- **`check_overdue_tasks`:**  
-  - **Explanation:** The function iterates through all tasks to check if they are overdue. This involves a linear scan through the task list.  
-  - **Time Complexity:** **O(n)**, where **n** is the number of tasks.
+2. **Validation for Student Name**:
+   - Checked that the student name is not empty (`not name.strip()`) before adding the student.
+   - Displays an error message if validation fails.
 
-- **`assign_priority` (Negation and Priority Keyword Search):**  
-  - **Explanation:** The combined string (title + description) is searched for negation and high-priority keywords using regular expressions. The regular expression uses word boundaries (`\b`) to ensure whole words are matched, not substrings within larger words.  
-  - **Time Complexity:** **O(n)**, where **n** is the length of the combined string. The `re.search` function performs a linear scan through the string to check for the presence of the keywords.
+3. **Validation for Course ID**:
+   - Added a `validate_course_id` method to check:
+     - The course ID is non-empty (`not course_id.strip()`).
+     - The course ID is unique (`course_id not in self.courses`).
 
-- **`assign_priority` (Error Handling for Keyword Absence):**  
-  - **Explanation:** Before calling `.index()` to find the position of the negation word, the code checks if the negation keyword exists in the combined string to avoid a `ValueError`. This check uses the `in` operator, which scans the string for the presence of the word.  
-  - **Time Complexity:** **O(n)**, where **n** is the length of the combined string. The `in` operator performs a linear scan to verify the presence of the word.
+4. **Prevention of Overwriting Course Data**:
+   - `validate_course_id` ensures that duplicate course IDs are not allowed.
+   - Displays an error message if a duplicate course ID is entered.
+
+5. **Save Data after Every Modification**:
+   - The `save_data` method is called after adding a student or course to persist changes to the JSON file.
+
+6. **Improved User Experience**:
+   - Clear error messages inform users why their input is invalid.
+   - Streamlined validation logic makes the code cleaner and more maintainable.
+
+
+### **How It Works**
+- **Adding a Student**:
+  1. User enters a student ID and name.
+  2. The `validate_student_id` method checks the ID's validity.
+  3. If valid, the student is added, and changes are saved to the JSON file.
+
+- **Adding a Course**:
+  1. User enters a course ID and name.
+  2. The `validate_course_id` method checks the ID's validity.
+  3. If valid, the course is added, and changes are saved to the JSON file.
