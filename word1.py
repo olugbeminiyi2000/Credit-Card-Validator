@@ -1,6 +1,21 @@
-Here’s the updated and fixed code where we directly take a student ID as input and validate it to ensure it is non-empty, unique, and meaningful. Directly addresses the issues of empty or duplicate student IDs, course IDs and course overwrites. 
+Here’s an updated and documented version of the `UniversitySystem` class, with the necessary bug fixes to handle the issues described in the prompt:
 
-### **Fixed Code**
+
+**Explanation of the Fix:**
+
+1. **Grade Conversion and Validation:**
+   - The first step is to attempt converting the `grade` input to a `float` using `float(grade)`. This ensures the input is numeric.
+   - If the conversion fails (e.g., the input is a string like `"A+"`), it raises a `ValueError`, and the program catches this error and displays an appropriate message.
+   
+2. **Range Check:**
+   - After the grade is successfully converted to a number, we check if the grade falls within the valid range (`0` to `100` inclusive).
+   - If the grade is outside this range, an error message is displayed.
+
+3. **Data Integrity:**
+   - If both checks pass (valid numeric grade and within range), the grade is assigned to the student’s course. 
+   - The system then saves the updated data to ensure changes persist.
+
+
 
 ```python
 import sys
@@ -142,6 +157,77 @@ class UniversitySystem:
         print(f"Course '{course_name}' added successfully with ID: {course_id}")
         self.save_data()  # Save changes to the data file
 
+    def view_student_courses_and_grades(self, student_id):
+        """
+        View a student's enrolled courses and their corresponding grades.
+        If the student is not enrolled in any courses, display a meaningful message.
+
+        Parameters:
+        - student_id (str): The ID of the student to retrieve course data for.
+        """
+        student = self.students.get(student_id)
+        if student:
+            if not student['courses']:
+                print(f"Student '{student_id}' is not enrolled in any courses.")
+            else:
+                print(f"Courses for Student '{student_id}':")
+                for course_id, course_info in student['courses'].items():
+                    print(f"{course_info['name']} - Grade: {course_info.get('grade', 'N/A')}")
+        else:
+            print(f"Student with ID '{student_id}' not found.")
+
+    def enroll_student(self, student_id, course_id):
+        """
+        Enroll a student in a course if they are not already enrolled.
+        Prevents the duplication of course enrollments and ensures grades are preserved.
+
+        Parameters:
+        - student_id (str): The ID of the student to enroll.
+        - course_id (str): The ID of the course to enroll the student in.
+        """
+        student = self.students.get(student_id)
+        if student:
+            course = self.courses.get(course_id)
+            if not course:
+                print(f"Error: Course with ID '{course_id}' not found.")
+                return
+            if course_id in student['courses']:
+                print(f"Student '{student_id}' is already enrolled in the course '{course_id}'.")
+            else:
+                student['courses'][course_id] = {"name": course['name'], "grade": None}
+                print(f"Student '{student_id}' has been enrolled in course '{course_id}'.")
+                self.save_data()
+        else:
+            print(f"Error: Student with ID '{student_id}' not found.")
+
+    def assign_grade(self, student_id, course_id, grade):
+        """
+        Assign a grade to a student in a particular course.
+        Ensures that the grade is a valid numeric value between 0 and 100.
+
+        Parameters:
+        - student_id (str): The ID of the student.
+        - course_id (str): The ID of the course.
+        - grade (int): The grade to assign to the student.
+        """
+        student = self.students.get(student_id)
+        if student and course_id in student['courses']:
+            try:
+                # Attempt to convert the grade to a float
+                grade = float(grade)
+                if 0 <= grade <= 100:
+                    student['courses'][course_id]['grade'] = grade
+                    print(f"Grade '{grade}' assigned to student '{student_id}' for course '{course_id}'.")
+                    self.save_data()
+                else:
+                    print("Error: Grade must be between 0 and 100.")
+            except ValueError:
+                print("Error: Invalid grade. Please enter a numeric value.")
+        else:
+            print(f"Error: Could not assign grade. Student '{student_id}' or course '{course_id}' not found.")
+
+
+
     def main_menu(self):
         """
         Display the main menu of the University Management System and 
@@ -152,7 +238,10 @@ class UniversitySystem:
             print("\nUniversity Management System")
             print("1. Add Student")
             print("2. Add Course")
-            print("3. Exit")
+            print("3. Enroll Student in Course")
+            print("4. View Student's Courses and Grades")
+            print("5. Assign Grade to Student")
+            print("6. Exit")
             choice = input("Enter your choice: ")
 
             if choice == "1":
@@ -166,12 +255,28 @@ class UniversitySystem:
                 course_name = input("Enter course name: ")
                 self.add_course(course_id, course_name)
             elif choice == "3":
+                # Enroll a student in a course
+                student_id = input("Enter student ID: ")
+                course_id = input("Enter course ID: ")
+                self.enroll_student(student_id, course_id)
+            elif choice == "4":
+                # View a student's courses and grades
+                student_id = input("Enter student ID: ")
+                self.view_student_courses_and_grades(student_id)
+            elif choice == "5":
+                # Assign a grade to a student course
+                student_id = input("Enter student ID: ")
+                course_id = input("Enter course ID: ")
+                grade = input("Enter grade: ")
+                self.assign_grade(student_id, course_id, grade)
+            elif choice == "6":
                 # Exit the system
                 print("Exiting the system. Goodbye!")
                 self.save_data()
                 sys.exit()
             else:
                 print("Invalid choice. Please try again.")
+
 
 if __name__ == "__main__":
     # Create an instance of UniversitySystem and start the main menu
@@ -180,42 +285,8 @@ if __name__ == "__main__":
 ```
 
 
-### **Explanation of Fixes**
-
-1. **Validation for Student ID**:
-   - Added a `validate_student_id` method to check:
-     - The student ID is non-empty (`not student_id.strip()`).
-     - The student ID is unique (`student_id not in self.students`).
-   - The method returns `False` if validation fails and provides appropriate error messages.
-
-2. **Validation for Student Name**:
-   - Checked that the student name is not empty (`not name.strip()`) before adding the student.
-   - Displays an error message if validation fails.
-
-3. **Validation for Course ID**:
-   - Added a `validate_course_id` method to check:
-     - The course ID is non-empty (`not course_id.strip()`).
-     - The course ID is unique (`course_id not in self.courses`).
-
-4. **Prevention of Overwriting Course Data**:
-   - `validate_course_id` ensures that duplicate course IDs are not allowed.
-   - Displays an error message if a duplicate course ID is entered.
-
-5. **Save Data after Every Modification**:
-   - The `save_data` method is called after adding a student or course to persist changes to the JSON file.
-
-6. **Improved User Experience**:
-   - Clear error messages inform users why their input is invalid.
-   - Streamlined validation logic makes the code cleaner and more maintainable.
-
-
-### **How It Works**
-- **Adding a Student**:
-  1. User enters a student ID and name.
-  2. The `validate_student_id` method checks the ID's validity.
-  3. If valid, the student is added, and changes are saved to the JSON file.
-
-- **Adding a Course**:
-  1. User enters a course ID and name.
-  2. The `validate_course_id` method checks the ID's validity.
-  3. If valid, the course is added, and changes are saved to the JSON file.
+**Testable Scenarios:**
+1. Assign a grade of `120`. The system should reject it with an error message stating that the grade must be between `0` and `100`.
+2. Assign a grade of `-10`. The system should reject it with an error message stating that the grade must be between `0` and `100`.
+3. Assign a non-numeric value like `"A+"`. The system should display an error message about invalid grade input.
+4. Assign a valid numeric grade like `85`. The system should assign the grade successfully and print a confirmation message.
