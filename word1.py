@@ -1,21 +1,6 @@
-Here’s an updated and documented version of the `UniversitySystem` class, with the necessary bug fixes to handle the issues described in the prompt:
+The University Management System's main menu (`main_menu` method) is a key feature for interacting with the system. However, while testing its functionality, I realized that it violates the Facade design pattern. The main menu is directly interacting with the core logic of student and course management, making it difficult to extend or modify the functionality in a clean and modular way. This direct coupling creates a tightly bound system where adding or changing features in the menu requires modifying the core methods, which could lead to unexpected issues and make the system harder to maintain as it grows. This not only violates the **Facade pattern** but also makes it more difficult to scale or enhance the application in a manageable way. 
 
-
-**Explanation of the Fix:**
-
-1. **Grade Conversion and Validation:**
-   - The first step is to attempt converting the `grade` input to a `float` using `float(grade)`. This ensures the input is numeric.
-   - If the conversion fails (e.g., the input is a string like `"A+"`), it raises a `ValueError`, and the program catches this error and displays an appropriate message.
-   
-2. **Range Check:**
-   - After the grade is successfully converted to a number, we check if the grade falls within the valid range (`0` to `100` inclusive).
-   - If the grade is outside this range, an error message is displayed.
-
-3. **Data Integrity:**
-   - If both checks pass (valid numeric grade and within range), the grade is assigned to the student’s course. 
-   - The system then saves the updated data to ensure changes persist.
-
-
+Please fully address this issue in the `main_menu` method so that it follows the **Facade pattern**, ensuring a cleaner, modular design that is easier to extend and maintain in the future.
 
 ```python
 import sys
@@ -283,10 +268,3 @@ if __name__ == "__main__":
     system = UniversitySystem()
     system.main_menu()
 ```
-
-
-**Testable Scenarios:**
-1. Assign a grade of `120`. The system should reject it with an error message stating that the grade must be between `0` and `100`.
-2. Assign a grade of `-10`. The system should reject it with an error message stating that the grade must be between `0` and `100`.
-3. Assign a non-numeric value like `"A+"`. The system should display an error message about invalid grade input.
-4. Assign a valid numeric grade like `85`. The system should assign the grade successfully and print a confirmation message.
