@@ -1,14 +1,5 @@
-Here’s an updated and documented version of the `UniversitySystem` class, with the necessary bug fixes to handle the issues described in the prompt:
+I have been enhancing the University Management System, but when I tried to assign grades to students using the assign_grade method, I encountered a problem. The system allows the entry of grades that aren't valid—such as non-numeric grades or values that don’t make sense in a grading context (like negative numbers or values above 100). This is causing some inconsistent data to be saved, and it’s making it difficult for the faculty to trust the grading system
 
-### Changes Made:
-1. **`view_student_courses_and_grades` Method**:
-   - **Issue**: It did not display a message when the student was not enrolled in any courses.
-   - **Fix**: Now, if a student has no courses, it displays a message stating, "Student '{student_id}' is not enrolled in any courses."
-
-2. **`enroll_student` Method**:
-   - **Issue**: It allowed a student to enroll in the same course multiple times, overwriting previous course data, potentially losing grades.
-   - **Fix**: Added a check to ensure that a student is not already enrolled in the course. If the student is already enrolled, it prints a message and does not overwrite the course data.
-   - **Fix**: Also checks whether the course exists before proceeding with enrollment. If the course does not exist, it prints an error message.
 
 ```python
 import sys
@@ -193,6 +184,16 @@ class UniversitySystem:
         else:
             print(f"Error: Student with ID '{student_id}' not found.")
 
+    def assign_grade(self, student_id, course_id, grade):
+        student = self.students.get(student_id)
+        if student and course_id in student['courses']:
+            student['courses'][course_id]['grade'] = grade
+            print(f"Grade '{grade}' assigned to student '{student_id}' for course '{course_id}'.")
+            self.save_data()
+        else:
+            print(f"Error: Could not assign grade. Student '{student_id}' or course '{course_id}' not found.")
+
+
     def main_menu(self):
         """
         Display the main menu of the University Management System and 
@@ -205,7 +206,8 @@ class UniversitySystem:
             print("2. Add Course")
             print("3. Enroll Student in Course")
             print("4. View Student's Courses and Grades")
-            print("5. Exit")
+            print("5. Assign Grade to Student")
+            print("6. Exit")
             choice = input("Enter your choice: ")
 
             if choice == "1":
@@ -228,6 +230,12 @@ class UniversitySystem:
                 student_id = input("Enter student ID: ")
                 self.view_student_courses_and_grades(student_id)
             elif choice == "5":
+                # Assign a grade to a student course
+                student_id = input("Enter student ID: ")
+                course_id = input("Enter course ID: ")
+                grade = input("Enter grade: ")
+                self.assign_grade(student_id, course_id, grade)
+            elif choice == "6":
                 # Exit the system
                 print("Exiting the system. Goodbye!")
                 self.save_data()
@@ -240,4 +248,5 @@ if __name__ == "__main__":
     # Create an instance of UniversitySystem and start the main menu
     system = UniversitySystem()
     system.main_menu()
+
 ```
