@@ -1,161 +1,97 @@
-To handle real-world scenarios more comprehensively, we need to refine the `is_valid` method and the `compare_categories` method. The revised methods will account for batch-specific expiration dates, environmental factors, and the impact of these variables on item validity. Let's dive into the improved solution.
+PROMPT 1:
+As an Automation Engineering intern at Dreamfyre University, I was tasked with enhancing a console-based application used to manage students and courses. While reviewing the JSON file that temporarily stores data, I noticed that some students had missing IDs and names. To investigate, I ran the console application and tested its functionality for adding new students. During this test, I discovered that the system allows students to be added with empty IDs and empty names. This issue is the root cause of students with invalid data, creating significant problems when trying to reference or manage these students in other operations.
 
+Similarly, while adding a course, I observed that the application overwrites existing courses when the same course ID is assigned a different course name, and also I can add courses with empty course id and course name. This inconsistency erases previous data, stores invalid data and makes it impossible to maintain accurate records. It could also cause confusion when implementing other features, such as enrolling students or viewing course details.
 
-### Enhanced Implementation
+I want you to debug and fix these issues by ensuring that student IDs and names are valid and meaningful before adding a student. Additionally, prevent the overwriting of course data by disallowing duplicate course IDs with conflicting names.
+
 
 ```python
-from enum import Enum
-from datetime import datetime, timedelta
+import sys
+import json
+import os
 
-# Enum for Item Categories
-class ItemCategory(Enum):
-    PERISHABLE = ("Perishable Goods", "Cold Storage", 7, {"temperature": [0, 10], "humidity": [60, 90]})
-    ELECTRONICS = ("Electronics", "Dry and Secure Storage", 365, {"temperature": [0, 35], "humidity": None})
-    CLOTHING = ("Clothing", "Dry Storage", 182, None)
-    FURNITURE = ("Furniture", "Dry and Spacious Storage", 730, {"temperature": [0, 40], "humidity": [20, 80]})
 
-    def __init__(self, category_name, storage_requirements, max_shelf_life, env_sensitivity):
-        self.category_name = category_name
-        self.storage_requirements = storage_requirements
-        self.max_shelf_life = max_shelf_life
-        # Dict with environmental sensitivity thresholds
-        self.env_sensitivity = env_sensitivity
+class UniversitySystem:
+    def __init__(self, data_file="university_data.json"):
+        # File to store persistent data
+        self.data_file = data_file
+        # Initialize dictionaries to store student and course data
+        self.students = {}
+        self.courses = {}
+        # Load data from file if it exists
+        self.load_data()
 
-    def is_valid(self, added_date, temperature=None, humidity=None, batch_expiration_date=None):
-        """
-        Check if the item is valid based on:
-        - Shelf life
-        - Environmental conditions (temperature, humidity)
-        - Batch-specific expiration date (if provided)
-        """
-        # Batch expiration date takes precedence
-        if batch_expiration_date:
-            return datetime.now() <= batch_expiration_date
+    def load_data(self):
+        """Load student and course data from a JSON file."""
+        try:
+            if os.path.exists(self.data_file):
+                with open(self.data_file, "r") as file:
+                    data = json.load(file)
+                    self.students = data.get("students", {})
+                    self.courses = data.get("courses", {})
+                    print("Data loaded successfully.")
+            else:
+                print("Data file not found. Starting with an empty system.")
+        except json.JSONDecodeError:
+            print("Data file is corrupted or empty. Starting with an empty system.")
+        except Exception as e:
+            print(f"An unexpected error occurred while loading data: {e}")
 
-        # Calculate default expiration based on shelf life
-        expiration_date = added_date + timedelta(days=self.max_shelf_life)
+    def save_data(self):
+        """Save student and course data to a JSON file."""
+        try:
+            with open(self.data_file, "w") as file:
+                data = {
+                    "students": self.students,
+                    "courses": self.courses
+                }
+                json.dump(data, file, indent=4)
+                print("Data saved successfully.")
+        except Exception as e:
+            print(f"An error occurred while saving data: {e}")
 
-        # Adjust expiration for environmental conditions
-        if self.env_sensitivity and temperature is not None:
-            temp_range = self.env_sensitivity.get("temperature")
-            if temp_range and not (temp_range[0] <= temperature <= temp_range[1]):
-                # Accelerated expiration for poor storage
-                expiration_date -= timedelta(days=2)
+    def add_student(self, student_id, name):
+        if student_id in self.students:
+            print("Student ID already exists.")
+        else:
+            self.students[student_id] = {"name": name, "courses": {}}
+            print(f"Student '{name}' added successfully.")
+            # Save changes after adding a student
+            self.save_data()
 
-        if self.env_sensitivity and humidity is not None:
-            humidity_range = self.env_sensitivity.get("humidity")
-            if humidity_range and not (humidity_range[0] <= humidity <= humidity_range[1]):
-                # Slightly reduced shelf life
-                expiration_date -= timedelta(days=1)
+    def add_course(self, course_id, course_name):
+        self.courses[course_id] = {"name": course_name}
+        print(f"Course '{course_name}' added successfully.")
+        # Save changes after adding a course
+        self.save_data()
 
-        # Return whether the item is still valid
-        return datetime.now() <= expiration_date
+    def main_menu(self):
+        while True:
+            print("\nUniversity Management System")
+            print("1. Add Student")
+            print("2. Add Course")
+            print("3. Exit")
+            choice = input("Enter your choice: ")
 
-    @staticmethod
-    def compare_categories(cat1, cat2):
-        """
-        Compare two categories and highlight differences in:
-        - Storage requirements
-        - Shelf life
-        - Environmental sensitivity (temperature and humidity thresholds)
-        """
-        differences = []
-        if cat1.storage_requirements != cat2.storage_requirements:
-            differences.append(f"Storage: {cat1.storage_requirements} vs {cat2.storage_requirements}")
-        if cat1.max_shelf_life != cat2.max_shelf_life:
-            differences.append(f"Shelf Life: {cat1.max_shelf_life} days vs {cat2.max_shelf_life} days")
+            if choice == "1":
+                student_id = input("Enter student ID: ")
+                name = input("Enter student name: ")
+                self.add_student(student_id, name)
+            elif choice == "2":
+                course_id = input("Enter course ID: ")
+                course_name = input("Enter course name: ")
+                self.add_course(course_id, course_name)
+            elif choice == "3":
+                print("Exiting the system. Goodbye!")
+                self.save_data()
+                sys.exit()
+            else:
+                print("Invalid choice. Please try again.")
 
-        # Compare environmental sensitivity
-        sensitivity_cat1 = cat1.env_sensitivity
-        sensitivity_cat2 = cat2.env_sensitivity
 
-        if sensitivity_cat1 != sensitivity_cat2:
-            sensitivity_differences = []
-            for factor in {"temperature", "humidity"}:
-                range1 = sensitivity_cat1.get(factor) if sensitivity_cat1 else None
-                range2 = sensitivity_cat2.get(factor) if sensitivity_cat2 else None
-                if range1 != range2:
-                    sensitivity_differences.append(
-                        f"{factor.capitalize()} Threshold: {range1 or 'None'} vs {range2 or 'None'}"
-                    )
-            differences.extend(sensitivity_differences)
-
-        return differences if differences else ["Categories are similar."]
-
-# Example usage
 if __name__ == "__main__":
-    # Example for a perishable item
-    added_date = datetime.now() - timedelta(days=5)
-    batch_expiration_date = datetime.now() + timedelta(days=2)
+    system = UniversitySystem()
+    system.main_menu()
 
-    perishable = ItemCategory.PERISHABLE
-    print(f"Category: {perishable.category_name}")
-    print(f"Is valid (normal conditions)? {'Yes' if perishable.is_valid(added_date) else 'No'}")
-    print(
-        f"Is valid (poor storage)? {'Yes' if perishable.is_valid(added_date, temperature=15, humidity=50) else 'No'}"
-    )
-    print(
-        f"Is valid (batch expiration)? {'Yes' if perishable.is_valid(added_date, batch_expiration_date=batch_expiration_date) else 'No'}"
-    )
-
-    # Compare categories
-    electronics = ItemCategory.ELECTRONICS
-    clothing = ItemCategory.CLOTHING
-    furniture = ItemCategory.FURNITURE
-
-    print("\nComparing Electronics and Clothing:")
-    print("\n".join(ItemCategory.compare_categories(electronics, clothing)))
-
-    print("\nComparing Furniture and Perishables:")
-    print("\n".join(ItemCategory.compare_categories(furniture, perishable)))
 ```
-
-
-### Key Enhancements and Rationale
-
-#### **1. Environmental Sensitivity**
-- **Feature**: Added `env_sensitivity` property to capture each category's response to environmental factors.
-- **Structure**: `env_sensitivity` is a dictionary with thresholds for temperature and humidity:
-  ```python
-  PERISHABLE = ("Perishable Goods", "Cold Storage", 7, {"temperature": [0, 10], "humidity": [60, 90]})
-  ```
-- **Behavior**:
-  - Items outside their ideal storage ranges see reduced shelf life.
-  - Temperature and humidity ranges are only considered for sensitive categories.
-
-#### **2. Batch Expiration**
-- **Feature**: Directly handles predefined expiration dates for items tied to specific batches, overriding shelf-life calculations.
-
-#### **3. Improved Comparisons**
-- **Feature**: Expanded `compare_categories` to highlight environmental thresholds (e.g., temperature, humidity) when they differ.
-- **Example**:
-  Comparing Perishables and Electronics could produce:
-  ```
-  Storage: Cold Storage vs Dry and Secure Storage
-  Shelf Life: 7 days vs 365 days
-  Temperature Threshold: [0, 10] vs [0, 35]
-  Humidity Threshold: [60, 90] vs None
-  ```
-
-
-### Advanced Insights
-
-#### **Why Use Enum for This Case?**
-1. **Centralization**: All properties and behaviors for each category are encapsulated within the enum, keeping the design modular and maintainable.
-2. **Extendability**: Adding new categories (e.g., "Frozen Goods") or sensitivity factors requires minimal changes.
-3. **Performance**: Enums are lightweight and improve code readability by replacing hardcoded values with meaningful names.
-
-
-#### **Real-World Scenarios**
-- **Dynamic Adjustments**:
-  - Seasonal changes can alter storage environments; this system allows dynamic revalidation.
-  - Example: Electronics stored in a hot warehouse may see their validity reduced.
-- **Batch-Specific Handling**:
-  - Useful for pharmaceuticals or perishables with hard expiration dates on packages.
-
-
-### Conclusion
-
-The revised implementation provides a **realistic, flexible, and robust system** for inventory management:
-- Real-world factors like environmental sensitivity and batch-specific expiration dates are integrated.
-- The enhanced `compare_categories` method delivers actionable insights for logistics and storage optimization.
